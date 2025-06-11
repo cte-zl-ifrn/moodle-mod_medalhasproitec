@@ -469,7 +469,7 @@ function get_courses_progress_as_list()
         }
         // If the course image URL is not set, use a default image.
         if (empty($course->course_image_url)) {
-            $course->course_image_url = "$CFG->wwwroot/blocks/multiprogress/assets/img/pedra.$disciplina.png";
+            $course->course_image_url = "$CFG->wwwroot/mod/medalhasproitec/pix/pedra.{$course->disciplina}.png";
         }
         $course->iniciada = $course->completion_percentage > 0;
         $course->concluida = $course->completion_percentage >= 100;
