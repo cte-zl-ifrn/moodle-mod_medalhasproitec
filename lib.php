@@ -22,6 +22,37 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+ $matrix_curricular = [
+    "FIC.1198" => [
+        "curso" => "Seminário de Integração",
+        "alias" => "....",
+        "subtitulo" => "....",
+        "jornada" => true,
+        "key" => "jornada",
+    ], 
+    "FIC.1197" => [
+        "curso" => "Ética e Cidadania",
+        "alias" => "....",
+        "subtitulo" => "....",
+        "jornada" => false,
+        "key" => "etica",
+    ], 
+    "FIC.1196" => [
+        "curso" => "Matemática",
+        "alias" => "....",
+        "subtitulo" => "....",
+        "jornada" => false,
+        "key" => "matematica",
+    ], 
+    "FIC.1195" => [
+        "curso" => "Língua Portuguesa",
+        "alias" => "....",
+        "subtitulo" => "....",
+        "jornada" => false,
+        "key" => "portugues",
+    ], 
+];
+
 /**
  * Return if the plugin supports $feature.
  *
@@ -305,17 +336,355 @@ function medalhasproitec_extend_settings_navigation($settingsnav, $medalhasproit
 function medalhasproitec_cm_info_view(cm_info $cm) {
     global $PAGE, $OUTPUT, $COURSE;
     
-    $data = [
-        'amante_das_palavras' => true,
-        'busca_pelo_saber' => true,
-        'maratonista_do_conhecimento' => true,
-        'sentinela_do_codex' => true,
-        'amante_dos_numeros' => true,
-        'entusiasta_do_ifrn' => true,
-        'mestre_do_portal' => true,
-        'orgulho_da_comunidade' => true,
-    ];
-
+    $data = get_insignias();
     $content = $OUTPUT->render_from_template('mod_medalhasproitec/activitycard', $data);
     $cm->set_content($content);
+}
+
+
+/**
+ * Get the status of the courses based on the matrix curricular.
+ *
+ * Exemplo:
+ * [
+ *    (object)[
+ *      'course_id' => 0,
+ *      'course_idnumber' => '...',
+ *      'course_fullname' => '...',
+ *      'course_shortname' => '...',
+ *      'course_alias' => '...',
+ *      'course_subtitle' => '...',
+ *      'course_image_url' => '...',
+ *      'total_modules' => 0,
+ *      'completed_modules' => 0,
+ *      'completion_percentage' => 0,
+ *      'disciplina' => 'FIC.1198',
+ *      'iniciada' => 0,
+ *      'concluida' => 0,
+ *    ],
+ *    (object)[
+ *      'course_id' => 0,
+ *      'course_idnumber' => '...',
+ *      'course_fullname' => '...',
+ *      'course_shortname' => '...',
+ *      'course_alias' => '...',
+ *      'course_subtitle' => '...',
+ *      'course_image_url' => '...',
+ *      'total_modules' => 0,
+ *      'completed_modules' => 0,
+ *      'completion_percentage' => 0,
+ *      'disciplina' => 'FIC.1197',
+ *      'iniciada' => 0,
+ *      'concluida' => 0,
+ *    ],
+ *    (object)[
+ *      'course_id' => 0,
+ *      'course_idnumber' => '...',
+ *      'course_fullname' => '...',
+ *      'course_shortname' => '...',
+ *      'course_alias' => '...',
+ *      'course_subtitle' => '...',
+ *      'course_image_url' => '...',
+ *      'total_modules' => 0,
+ *      'completed_modules' => 0,
+ *      'completion_percentage' => 0,
+ *      'disciplina' => 'FIC.1196',
+ *      'iniciada' => 0,
+ *      'concluida' => 0,
+ *    ],
+ *    (object)[
+ *      'course_id' => 0,
+ *      'course_idnumber' => '...',
+ *      'course_fullname' => '...',
+ *      'course_shortname' => '...',
+ *      'course_alias' => '...',
+ *      'course_subtitle' => '...',
+ *      'course_image_url' => '...',
+ *      'total_modules' => 0,
+ *      'completed_modules' => 0,
+ *      'completion_percentage' => 0,
+ *      'disciplina' => 'FIC.1195',
+ *      'iniciada' => 0,
+ *      'concluida' => 0,
+ *    ],
+ * ]
+ * 
+ * @return array An array containing the status of each course.
+ */
+function get_courses_progress_as_list()
+{
+    global $DB, $CFG, $COURSE, $USER;
+    // Título do curso
+    // Subtítulo do curso
+    // URL da pedra do curso
+    // Progresso do curso
+    $courses = $DB->get_records_sql(
+        "
+            SELECT c.id                                       AS course_id
+            , c.idnumber                                      AS course_idnumber
+            , c.fullname                                      AS course_fullname
+            , c.shortname                                      AS course_shortname
+            , (SELECT cd.value
+                FROM mdl_customfield_data                cd
+                        INNER JOIN mdl_customfield_field cf ON
+                            (cd.fieldid = cf.id AND cf.shortname = 'multiprogress_course_alias')
+                WHERE cd.instanceid = c.id)                 AS course_alias
+            , (SELECT cd.value
+                FROM mdl_customfield_data                cd
+                        INNER JOIN mdl_customfield_field cf ON
+                            (cd.fieldid = cf.id AND cf.shortname = 'multiprogress_course_subtitle')
+                WHERE cd.instanceid = c.id)                 AS course_subtitle
+            , (SELECT cd.value
+                FROM mdl_customfield_data                cd
+                        INNER JOIN mdl_customfield_field cf ON
+                            (cd.fieldid = cf.id AND cf.shortname = 'multiprogress_course_image_url')
+                WHERE cd.instanceid = c.id)                 AS course_image_url
+            , COUNT(cm.id)                                    AS total_modules
+            , COUNT(mc.id)                                    AS completed_modules
+            , TRUNC((COUNT(mc.id) * 100.0 / COUNT(cm.id)), 0) AS completion_percentage
+        FROM mdl_course                                   c
+                INNER JOIN mdl_course_modules            cm ON (c.id = cm.course)
+                LEFT JOIN  mdl_course_modules_completion mc ON (cm.id = mc.coursemoduleid)
+        WHERE c.category = $COURSE->category
+        AND (mc.userid = $USER->id OR mc.userid IS NULL)
+        GROUP BY c.id, c.fullname, c.shortname, c.idnumber
+        ORDER BY c.idnumber DESC
+        "
+    );
+
+
+    foreach ($courses as $course) {
+        // Extrai o valor 'FIC.1197' do idnumber usando regex
+        $course->disciplina = null;
+        if (preg_match('/.*\.(FIC.\\d*)#.*/', $course->course_idnumber, $matches)) {
+            $course->disciplina = $matches[1];
+        }
+        // If the course alias is not set, use the course fullname.
+        if (empty($course->course_alias)) {
+            $course->course_alias = $course->course_fullname;
+        }
+        // If the course subtitle is not set, use an empty string.
+        if (empty($course->course_subtitle)) {
+            $course->course_subtitle = $course->course_shortname;
+        }
+        // If the course image URL is not set, use a default image.
+        if (empty($course->course_image_url)) {
+            $course->course_image_url = "$CFG->wwwroot/blocks/multiprogress/assets/img/pedra.$disciplina.png";
+        }
+        $course->iniciada = $course->completion_percentage > 0;
+        $course->concluida = $course->completion_percentage >= 100;
+
+    }
+    return array_values($courses);
+}
+
+/**
+ * Get the status of the courses based on the matrix curricular.
+ *
+ * Exemplo:
+ * [
+ *    'jornada' => (object)[
+ *      'course_id' => 0,
+ *      'course_idnumber' => '...',
+ *      'course_fullname' => '...',
+ *      'course_shortname' => '...',
+ *      'course_alias' => '...',
+ *      'course_subtitle' => '...',
+ *      'course_image_url' => '...',
+ *      'total_modules' => 0,
+ *      'completed_modules' => 0,
+ *      'completion_percentage' => 0,
+ *      'disciplina' => 'FIC.1198',
+ *      'iniciada' => 0,
+ *      'concluida' => 0,
+ *    ],
+ *    'etica' => (object)[
+ *      'course_id' => 0,
+ *      'course_idnumber' => '...',
+ *      'course_fullname' => '...',
+ *      'course_shortname' => '...',
+ *      'course_alias' => '...',
+ *      'course_subtitle' => '...',
+ *      'course_image_url' => '...',
+ *      'total_modules' => 0,
+ *      'completed_modules' => 0,
+ *      'completion_percentage' => 0,
+ *      'disciplina' => 'FIC.1197',
+ *      'iniciada' => 0,
+ *      'concluida' => 0,
+ *    ],
+ *    'matematica' => (object)[
+ *      'course_id' => 0,
+ *      'course_idnumber' => '...',
+ *      'course_fullname' => '...',
+ *      'course_shortname' => '...',
+ *      'course_alias' => '...',
+ *      'course_subtitle' => '...',
+ *      'course_image_url' => '...',
+ *      'total_modules' => 0,
+ *      'completed_modules' => 0,
+ *      'completion_percentage' => 0,
+ *      'disciplina' => 'FIC.1196',
+ *      'iniciada' => 0,
+ *      'concluida' => 0,
+ *    ],
+ *    'portugues' => (object)[
+ *      'course_id' => 0,
+ *      'course_idnumber' => '...',
+ *      'course_fullname' => '...',
+ *      'course_shortname' => '...',
+ *      'course_alias' => '...',
+ *      'course_subtitle' => '...',
+ *      'course_image_url' => '...',
+ *      'total_modules' => 0,
+ *      'completed_modules' => 0,
+ *      'completion_percentage' => 0,
+ *      'disciplina' => 'FIC.1195',
+ *      'iniciada' => 0,
+ *      'concluida' => 0,
+ *    ],
+ * ]
+ * 
+ * @return array An array containing the status of each course.
+ */
+function get_courses_progress_as_dict()
+{
+    global $DB, $CFG, $COURSE, $USER;
+    $courses = get_courses_progress_as_list();
+   
+    $courses_statuses = [
+        'jornada' => null,
+        'etica' => null,
+        'matematica' => null,
+        'portugues' => null,
+    ];
+
+    foreach ($courses as $course) {
+        if (isset($matrix_curricular[$course->disciplina])) {
+            $courses_statuses[$matrix_curricular[$course->disciplina]['key']] = $course;
+        }
+    }
+}
+
+/**
+ * Get the status of the courses based on the matrix curricular.
+ *
+ * Exemplo:
+ * [
+ *    'sentinela_do_codex' => (object)[
+ *      'tem' => false,
+ *      'title' => 'Sentinela do Codex',
+ *      'description' => '...',
+ *      'popup' => '...',
+ *    ],
+ *    'maratonista_do_conhecimento' => (object)[
+ *      'tem' => false,
+ *      'title' => 'Maratonista do Conhecimento',
+ *      'description' => '...',
+ *      'popup' => '...',
+ *    ],
+ *    'busca_pelo_saber' => (object)[
+ *      'tem' => false,
+ *      'title' => 'Busca pelo Saber',
+ *      'description' => '...',
+ *      'popup' => '...',
+ *    ],
+ *    'mestre_do_portal' => (object)[
+ *      'tem' => false,
+ *      'title' => 'Mestre do Portal',
+ *      'description' => '...',
+ *      'popup' => '...',
+ *    ],
+ *    'amante_dos_numeros' => (object)[
+ *      'tem' => false,
+ *      'title' => 'Amante dos Números',
+ *      'description' => '...',
+ *      'popup' => '...',
+ *    ],
+ *    'amante_das_palavras' => (object)[
+ *      'tem' => false,
+ *      'title' => 'Amante das Palavras',
+ *      'description' => '...',
+ *      'popup' => '...',
+ *    ],
+ *    'orgulho_da_comunidade' => (object)[
+ *      'tem' => false,
+ *      'title' => 'Orgulho da Comunidade',
+ *      'description' => '...',
+ *      'popup' => '...',
+ *    ],
+ *    'entusiasta_do_ifrn' => (object)[
+ *      'tem' => false,
+ *      'title' => 'Entusiasta do IFRN',
+ *      'description' => '...',
+ *      'popup' => '...',
+ *    ],
+ * ]
+ * 
+ * @return array An array containing the status of each course.
+ */
+function get_insignias()
+{
+    global $DB, $CFG, $COURSE, $USER;
+    $courses = get_courses_progress_as_list();
+   
+    $insignias = [
+        'sentinela_do_codex' => (object)[
+            'tem' => false,
+            'ja_mostrou' => false,
+            'title' => 'Sentinela do Codex',
+            'description' => '...',
+            'popup' => '...',
+        ],
+        'maratonista_do_conhecimento' => (object)[
+            'tem' => false,
+            'mostrar_popup' => false,
+            'title' => 'Maratonista do Conhecimento',
+            'description' => '...',
+            'popup' => '...',
+        ],
+        'busca_pelo_saber' => (object)[
+            'tem' => false,
+            'mostrar_popup' => false,
+            'title' => 'Busca pelo Saber',
+            'description' => '...',
+            'popup' => '...',
+        ],
+        'mestre_do_portal' => (object)[
+            'tem' => false,
+            'mostrar_popup' => false,
+            'title' => 'Mestre do Portal',
+            'description' => '...',
+            'popup' => '...',
+        ],
+        'amante_dos_numeros' => (object)[
+            'tem' => false,
+            'mostrar_popup' => false,
+            'title' => 'Amante dos Números',
+            'description' => '...',
+            'popup' => '...',
+        ],
+        'amante_das_palavras' => (object)[
+            'tem' => false,
+            'mostrar_popup' => false,
+            'title' => 'Amante das Palavras',
+            'description' => '...',
+            'popup' => '...',
+        ],
+        'orgulho_da_comunidade' => (object)[
+            'tem' => false,
+            'mostrar_popup' => false,
+            'title' => 'Orgulho da Comunidade',
+            'description' => '...',
+            'popup' => '...',
+        ],
+        'entusiasta_do_ifrn' => (object)[
+            'tem' => false,
+            'mostrar_popup' => false,
+            'title' => 'Entusiasta do IFRN',
+            'description' => '...',
+            'popup' => '...',
+        ],
+    ];
+    return $insignias;
 }
