@@ -297,3 +297,25 @@ function medalhasproitec_extend_navigation($medalhasproitecnode, $course, $modul
  */
 function medalhasproitec_extend_settings_navigation($settingsnav, $medalhasproitecnode = null) {
 }
+
+
+
+
+
+function medalhasproitec_cm_info_view(cm_info $cm) {
+    global $PAGE, $OUTPUT, $COURSE;
+    
+    $data = [
+        'amante_das_palavras' => true,
+        'busca_pelo_saber' => true,
+        'maratonista_do_conhecimento' => true,
+        'sentinela_do_codex' => true,
+        'amante_dos_numeros' => true,
+        'entusiasta_do_ifrn' => true,
+        'mestre_do_portal' => true,
+        'orgulho_da_comunidade' => true,
+    ];
+
+    $content = $OUTPUT->render_from_template('mod_medalhasproitec/activitycard', $data);
+    $cm->set_content($content);
+}
