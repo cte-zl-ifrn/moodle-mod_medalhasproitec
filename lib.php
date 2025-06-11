@@ -22,36 +22,6 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
- $matrix_curricular = [
-    "FIC.1198" => [
-        "curso" => "Seminário de Integração",
-        "alias" => "....",
-        "subtitulo" => "....",
-        "jornada" => true,
-        "key" => "jornada",
-    ], 
-    "FIC.1197" => [
-        "curso" => "Ética e Cidadania",
-        "alias" => "....",
-        "subtitulo" => "....",
-        "jornada" => false,
-        "key" => "etica",
-    ], 
-    "FIC.1196" => [
-        "curso" => "Matemática",
-        "alias" => "....",
-        "subtitulo" => "....",
-        "jornada" => false,
-        "key" => "matematica",
-    ], 
-    "FIC.1195" => [
-        "curso" => "Língua Portuguesa",
-        "alias" => "....",
-        "subtitulo" => "....",
-        "jornada" => false,
-        "key" => "portugues",
-    ], 
-];
 
 /**
  * Return if the plugin supports $feature.
@@ -471,9 +441,9 @@ function get_courses_progress_as_list()
         if (empty($course->course_image_url)) {
             $course->course_image_url = "$CFG->wwwroot/mod/medalhasproitec/pix/pedra.{$course->disciplina}.png";
         }
-        $course->iniciada = $course->completion_percentage > 0;
+        $course->iniciada = TRUE;
         $course->concluida = $course->completion_percentage >= 100;
-
+        $course->jornada = $course->disciplina === 'FIC.1198';
     }
     return array_values($courses);
 }
@@ -550,6 +520,13 @@ function get_courses_progress_as_list()
 function get_courses_progress_as_dict()
 {
     global $DB, $CFG, $COURSE, $USER;
+    $matrix_curricular = [
+        "FIC.1198" => ["curso" => "Seminário de Integração", "key" => "jornada"],
+        "FIC.1197" => ["curso" => "Ética e Cidadania", "key" => "etica"],
+        "FIC.1196" => ["curso" => "Matemática", "key" => "matematica"],
+        "FIC.1195" => ["curso" => "Língua Portuguesa", "key" => "portugues"],
+    ];
+    
     $courses = get_courses_progress_as_list();
    
     $courses_statuses = [
@@ -564,6 +541,7 @@ function get_courses_progress_as_dict()
             $courses_statuses[$matrix_curricular[$course->disciplina]['key']] = $course;
         }
     }
+    return $courses_statuses;
 }
 
 /**
