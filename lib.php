@@ -662,7 +662,46 @@ function has_completed_half_quizzes(): bool {
     return true;
 }
 
-// TODO: Verificar se o usuário completou alguma atividade H5P do tipo InteractiveBook em um curso.
+
+/**
+ * Verifica se o usuário atual concluiu ao menos uma atividade H5P
+ * em todos os cursos nos quais está matriculado.
+ *
+ * A função percorre os cursos e verifica se há ao menos um módulo 
+ * do tipo 'h5pactivity' ou 'hvp' concluído.
+ *
+ * @return bool True se o usuário concluiu ao menos uma atividade H5P, false caso contrário.
+ */
+function at_least_read_one_book(): bool {
+    global $DB, $USER;
+
+    $courses = get_courses_progress_as_list();
+
+    foreach($courses as $course) {
+        // Se concluiu ao menos um módulo do tipo 'h5pactivity'
+        $h5pactivity = get_course_module_type_completion(
+            $course->course_id,
+            'h5pactivity',
+            $USER->id
+        );
+
+        if ($h5pactivity && isset($h5pactivity->completed) && (int) $h5pactivity->completed > 0) {
+            return true;
+        }
+
+        // Se concluiu ao menos um módulo do tipo 'hvp'
+        $h5pactivity = get_course_module_type_completion(
+            $course->course_id,
+            'hvp',
+            $USER->id
+        );
+
+        if ($hvp && isset($hvp->completed) && (int) $hvp->completed > 0) {
+            return true;
+        }
+    }
+    return false;
+}
 
 
 /**
@@ -743,7 +782,7 @@ function get_insignias()
             'popup' => '...',
         ],
         'busca_pelo_saber' => (object)[
-            'tem' => false,
+            'tem' => at_least_read_one_book(),
             'ja_mostrou_popup' => false,
             'title' => 'Busca pelo Saber',
             'description' => '...',
