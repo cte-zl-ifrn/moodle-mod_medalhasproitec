@@ -729,7 +729,7 @@ function get_insignias()
 
     $insignias = [
         'sentinela_do_codex' => (object)[
-            'tem' => $courses['jornada'] && $courses['jornada']->completion_percentage >= 20,
+            'tem' => isset($courses['jornada']) && $courses['jornada']->completion_percentage > 0,
             'ja_mostrou_popup' => false,
             'title' => 'Sentinela do Codex',
             'description' => '...',
