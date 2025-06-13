@@ -29,7 +29,8 @@
  * @param string $feature Constant representing the feature.
  * @return true | null True if the feature is supported, null otherwise.
  */
-function medalhasproitec_supports($feature) {
+function medalhasproitec_supports($feature)
+{
     return match ($feature) {
         FEATURE_MOD_ARCHETYPE => MOD_ARCHETYPE_RESOURCE,
         FEATURE_GROUPS => false,
@@ -59,7 +60,8 @@ function medalhasproitec_supports($feature) {
  * @param mod_medalhasproitec_mod_form $mform The form.
  * @return int The id of the newly inserted record.
  */
-function medalhasproitec_add_instance($moduleinstance, $mform = null) {
+function medalhasproitec_add_instance($moduleinstance, $mform = null)
+{
     global $DB;
 
     $moduleinstance->timecreated = time();
@@ -79,7 +81,8 @@ function medalhasproitec_add_instance($moduleinstance, $mform = null) {
  * @param mod_medalhasproitec_mod_form $mform The form.
  * @return bool True if successful, false otherwise.
  */
-function medalhasproitec_update_instance($moduleinstance, $mform = null) {
+function medalhasproitec_update_instance($moduleinstance, $mform = null)
+{
     global $DB;
 
     $moduleinstance->timemodified = time();
@@ -94,7 +97,8 @@ function medalhasproitec_update_instance($moduleinstance, $mform = null) {
  * @param int $id Id of the module instance.
  * @return bool True if successful, false on failure.
  */
-function medalhasproitec_delete_instance($id) {
+function medalhasproitec_delete_instance($id)
+{
     global $DB;
 
     $exists = $DB->get_record('medalhasproitec', ['id' => $id]);
@@ -117,7 +121,8 @@ function medalhasproitec_delete_instance($id) {
  * @param int $scaleid ID of the scale.
  * @return bool True if the scale is used by the given mod_medalhasproitec instance.
  */
-function medalhasproitec_scale_used($moduleinstanceid, $scaleid) {
+function medalhasproitec_scale_used($moduleinstanceid, $scaleid)
+{
     global $DB;
 
     if ($scaleid && $DB->record_exists('medalhasproitec', ['id' => $moduleinstanceid, 'grade' => -$scaleid])) {
@@ -135,7 +140,8 @@ function medalhasproitec_scale_used($moduleinstanceid, $scaleid) {
  * @param int $scaleid ID of the scale.
  * @return bool True if the scale is used by any mod_medalhasproitec instance.
  */
-function medalhasproitec_scale_used_anywhere($scaleid) {
+function medalhasproitec_scale_used_anywhere($scaleid)
+{
     global $DB;
 
     if ($scaleid && $DB->record_exists('medalhasproitec', ['grade' => -$scaleid])) {
@@ -154,9 +160,10 @@ function medalhasproitec_scale_used_anywhere($scaleid) {
  * @param bool $reset Reset grades in the gradebook.
  * @return void.
  */
-function medalhasproitec_grade_item_update($moduleinstance, $reset=false) {
+function medalhasproitec_grade_item_update($moduleinstance, $reset = false)
+{
     global $CFG;
-    require_once($CFG->libdir.'/gradelib.php');
+    require_once($CFG->libdir . '/gradelib.php');
 
     $item = [];
     $item['itemname'] = clean_param($moduleinstance->name, PARAM_NOTAGS);
@@ -185,12 +192,21 @@ function medalhasproitec_grade_item_update($moduleinstance, $reset=false) {
  * @param stdClass $moduleinstance Instance object.
  * @return grade_item.
  */
-function medalhasproitec_grade_item_delete($moduleinstance) {
+function medalhasproitec_grade_item_delete($moduleinstance)
+{
     global $CFG;
-    require_once($CFG->libdir.'/gradelib.php');
+    require_once($CFG->libdir . '/gradelib.php');
 
-    return grade_update('/mod/medalhasproitec', $moduleinstance->course, 'mod', 'medalhasproitec',
-                        $moduleinstance->id, 0, null, ['deleted' => 1]);
+    return grade_update(
+        '/mod/medalhasproitec',
+        $moduleinstance->course,
+        'mod',
+        'medalhasproitec',
+        $moduleinstance->id,
+        0,
+        null,
+        ['deleted' => 1]
+    );
 }
 
 /**
@@ -201,9 +217,10 @@ function medalhasproitec_grade_item_delete($moduleinstance) {
  * @param stdClass $moduleinstance Instance object with extra cmidnumber and modname property.
  * @param int $userid Update grade of specific user only, 0 means all participants.
  */
-function medalhasproitec_update_grades($moduleinstance, $userid = 0) {
+function medalhasproitec_update_grades($moduleinstance, $userid = 0)
+{
     global $CFG, $DB;
-    require_once($CFG->libdir.'/gradelib.php');
+    require_once($CFG->libdir . '/gradelib.php');
 
     // Populate array of grade objects indexed by userid.
     $grades = [];
@@ -224,7 +241,8 @@ function medalhasproitec_update_grades($moduleinstance, $userid = 0) {
  * @param stdClass $context
  * @return string[].
  */
-function medalhasproitec_get_file_areas($course, $cm, $context) {
+function medalhasproitec_get_file_areas($course, $cm, $context)
+{
     return [];
 }
 
@@ -245,7 +263,8 @@ function medalhasproitec_get_file_areas($course, $cm, $context) {
  * @param string $filename
  * @return file_info Instance or null if not found.
  */
-function medalhasproitec_get_file_info($browser, $areas, $course, $cm, $context, $filearea, $itemid, $filepath, $filename) {
+function medalhasproitec_get_file_info($browser, $areas, $course, $cm, $context, $filearea, $itemid, $filepath, $filename)
+{
     return null;
 }
 
@@ -263,7 +282,8 @@ function medalhasproitec_get_file_info($browser, $areas, $course, $cm, $context,
  * @param bool $forcedownload Whether or not force download.
  * @param array $options Additional options affecting the file serving.
  */
-function medalhasproitec_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, $options = []) {
+function medalhasproitec_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, $options = [])
+{
     global $DB, $CFG;
 
     if ($context->contextlevel != CONTEXT_MODULE) {
@@ -284,8 +304,7 @@ function medalhasproitec_pluginfile($course, $cm, $context, $filearea, $args, $f
  * @param stdClass $module
  * @param cm_info $cm
  */
-function medalhasproitec_extend_navigation($medalhasproitecnode, $course, $module, $cm) {
-}
+function medalhasproitec_extend_navigation($medalhasproitecnode, $course, $module, $cm) {}
 
 /**
  * Extends the settings navigation with the mod_medalhasproitec settings.
@@ -296,16 +315,16 @@ function medalhasproitec_extend_navigation($medalhasproitecnode, $course, $modul
  * @param settings_navigation $settingsnav {@see settings_navigation}
  * @param navigation_node $medalhasproitecnode {@see navigation_node}
  */
-function medalhasproitec_extend_settings_navigation($settingsnav, $medalhasproitecnode = null) {
-}
+function medalhasproitec_extend_settings_navigation($settingsnav, $medalhasproitecnode = null) {}
 
 
 
 
 
-function medalhasproitec_cm_info_view(cm_info $cm) {
+function medalhasproitec_cm_info_view(cm_info $cm)
+{
     global $PAGE, $OUTPUT, $COURSE;
-    
+
     $data = get_insignias();
     $content = $OUTPUT->render_from_template('mod_medalhasproitec/activitycard', $data);
     $cm->set_content($content);
@@ -454,68 +473,68 @@ function get_courses_progress_as_list()
  * Get the status of the courses based on the matrix curricular.
  *
  * Exemplo:
- * [
- *    'jornada' => (object)[
- *      'course_id' => 0,
- *      'course_idnumber' => '...',
- *      'course_fullname' => '...',
- *      'course_shortname' => '...',
- *      'course_alias' => '...',
- *      'course_subtitle' => '...',
- *      'course_image_url' => '...',
- *      'total_modules' => 0,
- *      'completed_modules' => 0,
- *      'completion_percentage' => 0,
- *      'disciplina' => 'FIC.1198',
- *      'iniciada' => 0,
- *      'concluida' => 0,
- *    ],
- *    'etica' => (object)[
- *      'course_id' => 0,
- *      'course_idnumber' => '...',
- *      'course_fullname' => '...',
- *      'course_shortname' => '...',
- *      'course_alias' => '...',
- *      'course_subtitle' => '...',
- *      'course_image_url' => '...',
- *      'total_modules' => 0,
- *      'completed_modules' => 0,
- *      'completion_percentage' => 0,
- *      'disciplina' => 'FIC.1197',
- *      'iniciada' => 0,
- *      'concluida' => 0,
- *    ],
- *    'matematica' => (object)[
- *      'course_id' => 0,
- *      'course_idnumber' => '...',
- *      'course_fullname' => '...',
- *      'course_shortname' => '...',
- *      'course_alias' => '...',
- *      'course_subtitle' => '...',
- *      'course_image_url' => '...',
- *      'total_modules' => 0,
- *      'completed_modules' => 0,
- *      'completion_percentage' => 0,
- *      'disciplina' => 'FIC.1196',
- *      'iniciada' => 0,
- *      'concluida' => 0,
- *    ],
- *    'portugues' => (object)[
- *      'course_id' => 0,
- *      'course_idnumber' => '...',
- *      'course_fullname' => '...',
- *      'course_shortname' => '...',
- *      'course_alias' => '...',
- *      'course_subtitle' => '...',
- *      'course_image_url' => '...',
- *      'total_modules' => 0,
- *      'completed_modules' => 0,
- *      'completion_percentage' => 0,
- *      'disciplina' => 'FIC.1195',
- *      'iniciada' => 0,
- *      'concluida' => 0,
- *    ],
- * ]
+ * {
+ *    "jornada": {
+ *      "course_id": 0,
+ *      "course_idnumber": "...",
+ *      "course_fullname": "...",
+ *      "course_shortname": "...",
+ *      "course_alias": "...",
+ *      "course_subtitle": "...",
+ *      "course_image_url": "...",
+ *      "total_modules": 0,
+ *      "completed_modules": 0,
+ *      "completion_percentage": 0,
+ *      "disciplina": "FIC.1198",
+ *      "iniciada": 0,
+ *      "concluida": 0,
+ *    },
+ *    "etica": {
+ *      "course_id": 0,
+ *      "course_idnumber": "...",
+ *      "course_fullname": "...",
+ *      "course_shortname": "...",
+ *      "course_alias": "...",
+ *      "course_subtitle": "...",
+ *      "course_image_url": "...",
+ *      "total_modules": 0,
+ *      "completed_modules": 0,
+ *      "completion_percentage": 0,
+ *      "disciplina": "FIC.1197",
+ *      "iniciada": 0,
+ *      "concluida": 0,
+ *    },
+ *    "matematica": {
+ *      "course_id": 0,
+ *      "course_idnumber": "...",
+ *      "course_fullname": "...",
+ *      "course_shortname": "...",
+ *      "course_alias": "...",
+ *      "course_subtitle": "...",
+ *      "course_image_url": "...",
+ *      "total_modules": 0,
+ *      "completed_modules": 0,
+ *      "completion_percentage": 0,
+ *      "disciplina": "FIC.1196",
+ *      "iniciada": 0,
+ *      "concluida": 0,
+ *    },
+ *    "portugues": {
+ *      "course_id": 0,
+ *      "course_idnumber": "...",
+ *      "course_fullname": "...",
+ *      "course_shortname": "...",
+ *      "course_alias": "...",
+ *      "course_subtitle": "...",
+ *      "course_image_url": "...",
+ *      "total_modules": 0,
+ *      "completed_modules": 0,
+ *      "completion_percentage": 0,
+ *      "disciplina": "FIC.1195",
+ *      "iniciada": 0,
+ *      "concluida": 0,
+ *    },
+ * }
  * 
  * @return array An array containing the status of each course.
  */
@@ -528,9 +547,9 @@ function get_courses_progress_as_dict()
         "FIC.1196" => ["curso" => "Matemática", "key" => "matematica"],
         "FIC.1195" => ["curso" => "Língua Portuguesa", "key" => "portugues"],
     ];
-    
+
     $courses = get_courses_progress_as_list();
-   
+
     $courses_statuses = [
         'jornada' => null,
         'etica' => null,
