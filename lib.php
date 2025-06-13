@@ -574,7 +574,8 @@ function get_courses_progress_as_dict()
  * @return stdClass Objeto contendo as propriedades 'total' (total de módulos com conclusão)
  *                  e 'completed' (quantos foram concluídos pelo usuário).
  */
-function get_course_module_type_completion(int $courseid, string $modulename, int $userid): stdClass {
+function get_course_module_type_completion(int $courseid, string $modulename, int $userid): stdClass
+{
     global $DB;
 
     $sql = "
@@ -607,7 +608,8 @@ function get_course_module_type_completion(int $courseid, string $modulename, in
  * @global stdClass $USER Objeto global do usuário logado.
  * @return bool True se todos os vídeos interativos foram concluídos; false caso contrário.
  */
-function has_completed_all_interactivevideos(): bool {
+function has_completed_all_interactivevideos(): bool
+{
     global $DB, $USER;
 
     $courses = get_courses_progress_as_list();
@@ -635,7 +637,8 @@ function has_completed_all_interactivevideos(): bool {
  * @param int|null $userid ID do usuário (opcional, padrão: usuário logado).
  * @return bool True se concluiu pelo menos 50%, false caso contrário.
  */
-function has_completed_half_quizzes(): bool {
+function has_completed_half_quizzes(): bool
+{
     global $DB, $USER;
 
     $courses = get_courses_progress_as_list();
@@ -653,7 +656,7 @@ function has_completed_half_quizzes(): bool {
         }
 
         $percentCompleted = (int) $result->completed / (int) $result->total;
-        
+
         if ($percentCompleted < 0.5) {
             return false;
         }
@@ -672,12 +675,13 @@ function has_completed_half_quizzes(): bool {
  *
  * @return bool True se o usuário concluiu ao menos uma atividade H5P, false caso contrário.
  */
-function at_least_read_one_book(): bool {
+function at_least_read_one_book(): bool
+{
     global $DB, $USER;
 
     $courses = get_courses_progress_as_list();
 
-    foreach($courses as $course) {
+    foreach ($courses as $course) {
         // Se concluiu ao menos um módulo do tipo 'h5pactivity'
         $h5pactivity = get_course_module_type_completion(
             $course->course_id,
@@ -690,7 +694,7 @@ function at_least_read_one_book(): bool {
         }
 
         // Se concluiu ao menos um módulo do tipo 'hvp'
-        $h5pactivity = get_course_module_type_completion(
+        $hvp = get_course_module_type_completion(
             $course->course_id,
             'hvp',
             $USER->id
