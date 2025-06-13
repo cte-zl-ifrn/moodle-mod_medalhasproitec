@@ -440,7 +440,28 @@ function get_courses_progress_as_list()
         ORDER BY c.idnumber DESC
         "
     );
-
+    $traducao = [
+        'FIC.1195' => [
+            'course_alias' => 'PEDRA DA LÓGICA',
+            'course_subtitle' => 'Viaje ate o Oeste Potiguar para obtê-la',
+            'stone_color' => '62, 193, 52'
+        ],
+        'FIC.1196' => [
+            'course_alias' => 'PEDRA DA COMUNICAÇÃO',
+            'course_subtitle' => 'Viaje ate a Central Potiguar para obtê-la',
+            'stone_color' => '253, 35, 217'
+        ],
+        'FIC.1197' => [
+            'course_alias' => 'PEDRA DA HARMONIA',
+            'course_subtitle' => 'Viaje ate o Agreste Potiguar para obtê-la',
+            'stone_color' => '242, 183, 34'
+        ],
+        'FIC.1198' => [
+            'course_alias' => 'PEDRA DA UNIDADE',
+            'course_subtitle' => 'Viaje ate o Leste Potiguar para obtê-la',
+            'stone_color' => '47, 109, 246'
+        ]
+    ];
 
     foreach ($courses as $course) {
         // Extrai o valor 'FIC.1197' do idnumber usando regex
@@ -463,6 +484,15 @@ function get_courses_progress_as_list()
         $course->iniciada = TRUE;
         $course->concluida = $course->completion_percentage >= 100;
         $course->jornada = $course->disciplina === 'FIC.1198';
+
+        if (array_key_exists($course->disciplina, $traducao)) {
+            $course->stone_color =  $traducao[$course->disciplina]['stone_color'];
+            $course->course_alias = $traducao[$course->disciplina]['course_alias'];
+            $course->course_subtitle = $traducao[$course->disciplina]['course_subtitle'];
+        } else {
+            $course->stone_color = '0, 255, 255';
+        }
+        $course->isactive = ($course->course_id == $COURSE->id) ? 'd-flex' : 'hidden';
     }
     return array_values($courses);
 }
