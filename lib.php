@@ -413,7 +413,9 @@ function get_courses_progress_as_list()
             , COUNT(mc.id)                                    AS completed_modules
             , TRUNC((COUNT(mc.id) * 100.0 / COUNT(cm.id)), 0) AS completion_percentage
         FROM mdl_course                                   c
-                INNER JOIN mdl_course_modules            cm ON (c.id = cm.course)
+                INNER JOIN mdl_course_modules cm
+                    ON (c.id = cm.course)
+                    AND cm.completion > 0
                 LEFT JOIN  mdl_course_modules_completion mc ON (cm.id = mc.coursemoduleid)
         WHERE c.category = $COURSE->category
         AND (mc.userid = $USER->id OR mc.userid IS NULL)
@@ -545,6 +547,106 @@ function get_courses_progress_as_dict()
 }
 
 /**
+ * Obtém o total de atividades de um tipo específico em um curso e quantas delas foram concluídas por um usuário.
+ *
+ * @param int $courseid ID do curso.
+ * @param string $modulename Nome do módulo (como definido em mdl_modules.name).
+ * @param int $userid ID do usuário.
+ * @return stdClass Objeto contendo as propriedades 'total' (total de módulos com conclusão)
+ *                  e 'completed' (quantos foram concluídos pelo usuário).
+ */
+function get_course_module_type_completion(int $courseid, string $modulename, int $userid): stdClass {
+    global $DB;
+
+    $sql = "
+        SELECT COUNT(cm.id) AS total,
+               COUNT(mc.id) FILTER (WHERE mc.completionstate = 1) AS completed
+          FROM {course_modules} cm
+          JOIN {modules} m ON m.id = cm.module
+     LEFT JOIN {course_modules_completion} mc ON mc.coursemoduleid = cm.id AND mc.userid = :userid
+         WHERE cm.course = :courseid
+           AND m.name = :modulename
+           AND cm.completion > 0
+    ";
+
+    return $DB->get_record_sql($sql, [
+        'courseid'   => $courseid,
+        'modulename' => $modulename,
+        'userid'     => $userid
+    ]);
+}
+
+
+/**
+ * Verifica se o usuário atual concluiu todos os módulos do tipo 'interactivevideo' em todos os cursos com progresso.
+ *
+ *
+ * Retorna false assim que encontrar um curso com pelo menos um vídeo interativo não concluído.
+ * Caso contrário, retorna true, indicando que todos foram concluídos.
+ *
+ * @global moodle_database $DB Instância global do banco de dados.
+ * @global stdClass $USER Objeto global do usuário logado.
+ * @return bool True se todos os vídeos interativos foram concluídos; false caso contrário.
+ */
+function has_completed_all_interactivevideos(): bool {
+    global $DB, $USER;
+
+    $courses = get_courses_progress_as_list();
+
+    foreach ($courses as $course) {
+        $result = get_course_module_type_completion(
+            $course->course_id,
+            'interactivevideo',
+            $USER->id
+        );
+
+        if ($result && $result->total > 0 && $result->completed < $result->total) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+
+/**
+ * Verifica se o usuário concluiu pelo menos 50% dos questionários de um curso.
+ *
+ * @param int $courseid ID do curso.
+ * @param int|null $userid ID do usuário (opcional, padrão: usuário logado).
+ * @return bool True se concluiu pelo menos 50%, false caso contrário.
+ */
+function has_completed_half_quizzes(): bool {
+    global $DB, $USER;
+
+    $courses = get_courses_progress_as_list();
+
+    foreach ($courses as $course) {
+        $result = get_course_module_type_completion(
+            $course->course_id,
+            'quiz',
+            $USER->id
+        );
+
+        if ($result->total == 0) {
+            // Se não há questionários, consideramos como não atendido.
+            return false;
+        }
+
+        $percentCompleted = (int) $result->completed / (int) $result->total;
+        
+        if ($percentCompleted < 0.5) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+// TODO: Verificar se o usuário completou alguma atividade H5P do tipo InteractiveBook em um curso.
+
+
+/**
  * Get the status of the courses based on the matrix curricular.
  *
  * Exemplo:
@@ -604,61 +706,61 @@ function get_courses_progress_as_dict()
 function get_insignias()
 {
     global $DB, $CFG, $COURSE, $USER;
-    $courses = get_courses_progress_as_list();
-   
+    $courses = get_courses_progress_as_dict();
+
     $insignias = [
         'sentinela_do_codex' => (object)[
-            'tem' => false,
-            'ja_mostrou' => false,
+            'tem' => $courses['jornada'] && $courses['jornada']->completion_percentage >= 20,
+            'ja_mostrou_popup' => false,
             'title' => 'Sentinela do Codex',
             'description' => '...',
             'popup' => '...',
         ],
         'maratonista_do_conhecimento' => (object)[
-            'tem' => false,
-            'mostrar_popup' => false,
+            'tem' => has_completed_all_interactivevideos(),
+            'ja_mostrou_popup' => false,
             'title' => 'Maratonista do Conhecimento',
             'description' => '...',
             'popup' => '...',
         ],
         'busca_pelo_saber' => (object)[
             'tem' => false,
-            'mostrar_popup' => false,
+            'ja_mostrou_popup' => false,
             'title' => 'Busca pelo Saber',
             'description' => '...',
             'popup' => '...',
         ],
         'mestre_do_portal' => (object)[
-            'tem' => false,
-            'mostrar_popup' => false,
+            'tem' => has_completed_half_quizzes(),
+            'ja_mostrou_popup' => false,
             'title' => 'Mestre do Portal',
             'description' => '...',
             'popup' => '...',
         ],
         'amante_dos_numeros' => (object)[
-            'tem' => false,
-            'mostrar_popup' => false,
+            'tem' => isset($courses['matematica']) && $courses['matematica']->concluida,
+            'ja_mostrou_popup' => false,
             'title' => 'Amante dos Números',
             'description' => '...',
             'popup' => '...',
         ],
         'amante_das_palavras' => (object)[
-            'tem' => false,
-            'mostrar_popup' => false,
+            'tem' => isset($courses['portugues']) && $courses['portugues']->concluida,
+            'ja_mostrou_popup' => false,
             'title' => 'Amante das Palavras',
             'description' => '...',
             'popup' => '...',
         ],
         'orgulho_da_comunidade' => (object)[
-            'tem' => false,
-            'mostrar_popup' => false,
+            'tem' => isset($courses['etica']) && $courses['etica']->concluida,
+            'ja_mostrou_popup' => false,
             'title' => 'Orgulho da Comunidade',
             'description' => '...',
             'popup' => '...',
         ],
         'entusiasta_do_ifrn' => (object)[
-            'tem' => false,
-            'mostrar_popup' => false,
+            'tem' => isset($courses['jornada']) && $courses['jornada']->concluida,
+            'ja_mostrou_popup' => false,
             'title' => 'Entusiasta do IFRN',
             'description' => '...',
             'popup' => '...',
