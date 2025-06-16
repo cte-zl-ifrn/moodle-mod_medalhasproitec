@@ -325,6 +325,7 @@ function medalhasproitec_cm_info_view(cm_info $cm)
 {
     global $PAGE, $OUTPUT, $COURSE;
 
+
     $data = get_insignias();
     $content = $OUTPUT->render_from_template('mod_medalhasproitec/activitycard', $data);
     $cm->set_content($content);
@@ -691,7 +692,7 @@ function check_all_quizzes_minimum_score($minscore = 50): bool
  */
 function at_least_read_one_book(): bool
 {
-    global $DB, $USER;
+    global $USER;
 
     $courses = get_courses_progress_as_list();
 
@@ -719,6 +720,40 @@ function at_least_read_one_book(): bool
         }
     }
     return false;
+}
+
+
+function redirect_to_jornada_if_not_started()
+{
+    global $COURSE, $USER, $PAGE;
+
+    $courses = get_courses_progress_as_dict();
+
+    $jornadaid = $courses['jornada']->course_id ?? 0;
+
+    // Só prepara o redirecionamento se realmente precisar
+    $shouldredirect = (
+        isset($courses['jornada']) &&
+        $courses['jornada']->completion_percentage <= 0 &&
+        $COURSE->id != $jornadaid
+    );
+
+    if ($shouldredirect) {
+        // URL de destino
+        $redirurl = (new moodle_url('/course/view.php', ['id' => $jornadaid]))->out(false);
+
+        // 1. Passa a URL e a mensagem ao JS
+        $PAGE->requires->js_call_amd(
+            'mod_medalhasproitec/redirectmodal', // nome do seu módulo AMD
+            'show',
+            [
+                'Atenção',
+                'Você será redirecionado',
+                $redirurl,
+                false
+            ]
+        );
+    }
 }
 
 
@@ -783,6 +818,8 @@ function get_insignias()
 {
     global $DB, $CFG, $COURSE, $USER;
     $courses = get_courses_progress_as_dict();
+
+    redirect_to_jornada_if_not_started();
 
     $insignias = [
         'sentinela_do_codex' => (object)[
