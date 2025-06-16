@@ -22,6 +22,11 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+define('CODIGO_DISCIPLINA_JORNADA', 'FIC.1198');
+define('CODIGO_DISCIPLINA_ETICA', 'FIC.1197');
+define('CODIGO_DISCIPLINA_MATEMATICA', 'FIC.1196');
+define('CODIGO_DISCIPLINA_PORTUGUES', 'FIC.1195');
+
 
 /**
  * Return if the plugin supports $feature.
@@ -332,6 +337,23 @@ function medalhasproitec_cm_info_view(cm_info $cm)
 
 
 /**
+ * Extracts the disciplina from the idnumber.
+ *
+ * @param string $idnumber The idnumber to extract the disciplina from.
+ * @return string|null The extracted disciplina or null if not found.
+ */
+function get_disciplina_from_idnumber($idnumber)
+{
+    // Extrai o valor 'FIC.1197' do idnumber usando regex
+    $disciplina = null;
+    if (preg_match('/.*\.(FIC.\\d*)#.*/', $idnumber, $matches)) {
+        $disciplina = $matches[1];
+    }
+    return $disciplina;
+}
+
+
+/**
  * Get the status of the courses based on the matrix curricular.
  *
  * Exemplo:
@@ -465,10 +487,8 @@ function get_courses_progress_as_list()
 
     foreach ($courses as $course) {
         // Extrai o valor 'FIC.1197' do idnumber usando regex
-        $course->disciplina = null;
-        if (preg_match('/.*\.(FIC.\\d*)#.*/', $course->course_idnumber, $matches)) {
-            $course->disciplina = $matches[1];
-        }
+        $course->disciplina = get_disciplina_from_idnumber($course->course_idnumber);
+
         // If the course alias is not set, use the course fullname.
         if (empty($course->course_alias)) {
             $course->course_alias = $course->course_fullname;
