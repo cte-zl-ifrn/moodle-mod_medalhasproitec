@@ -412,7 +412,7 @@ function get_courses_progress_as_list()
             SELECT c.id                                       AS course_id
             , c.idnumber                                      AS course_idnumber
             , c.fullname                                      AS course_fullname
-            , c.shortname                                      AS course_shortname
+            , c.shortname                                     AS course_shortname
             , (SELECT cd.value
                 FROM mdl_customfield_data                cd
                         INNER JOIN mdl_customfield_field cf ON
@@ -435,9 +435,10 @@ function get_courses_progress_as_list()
                 INNER JOIN mdl_course_modules cm
                     ON (c.id = cm.course)
                     AND cm.completion > 0
-                LEFT JOIN  mdl_course_modules_completion mc ON (cm.id = mc.coursemoduleid)
+                LEFT JOIN  mdl_course_modules_completion mc 
+                    ON (cm.id = mc.coursemoduleid)
+                    AND mc.userid = $USER->id
         WHERE c.category = $COURSE->category
-        AND (mc.userid = $USER->id OR mc.userid IS NULL)
         GROUP BY c.id, c.fullname, c.shortname, c.idnumber
         ORDER BY c.idnumber DESC
         "
@@ -598,26 +599,25 @@ function get_course_module_type_completion(int $courseid, string $modulename, in
 
 
 /**
- * Verifica se o usuário atual concluiu todos os módulos do tipo 'interactivevideo' em todos os cursos com progresso.
- *
+ * Verifica se o usuário atual concluiu todos os módulos do tipo passado por parâmetro em todos os cursos.
  *
  * Retorna false assim que encontrar um curso com pelo menos um vídeo interativo não concluído.
  * Caso contrário, retorna true, indicando que todos foram concluídos.
  *
  * @global moodle_database $DB Instância global do banco de dados.
  * @global stdClass $USER Objeto global do usuário logado.
- * @return bool True se todos os vídeos interativos foram concluídos; false caso contrário.
+ * @return bool True se todos os módulos foram concluídos; false caso contrário.
  */
-function has_completed_all_interactivevideos(): bool
+function has_completed_all_modules_type(string $modulename): bool
 {
-    global $DB, $USER;
+    global $USER;
 
     $courses = get_courses_progress_as_list();
 
     foreach ($courses as $course) {
         $result = get_course_module_type_completion(
             $course->course_id,
-            'interactivevideo',
+            $modulename,
             $USER->id
         );
 
@@ -631,34 +631,48 @@ function has_completed_all_interactivevideos(): bool
 
 
 /**
- * Verifica se o usuário concluiu pelo menos 50% dos questionários de um curso.
+ * Verifica se o usuário acertou pelo menos 50% em todos os questionários de todos os curso.
  *
  * @param int $courseid ID do curso.
  * @param int|null $userid ID do usuário (opcional, padrão: usuário logado).
- * @return bool True se concluiu pelo menos 50%, false caso contrário.
+ * @return bool True se acertou pelo menos 50%, false caso contrário.
  */
-function has_completed_half_quizzes(): bool
+function check_all_quizzes_minimum_score($minscore = 50): bool
 {
     global $DB, $USER;
+
+    if (!has_completed_all_modules_type('quiz')) {
+        return false;
+    }
 
     $courses = get_courses_progress_as_list();
 
     foreach ($courses as $course) {
-        $result = get_course_module_type_completion(
-            $course->course_id,
-            'quiz',
-            $USER->id
-        );
+        // Busca todos os quizzes do curso
+        $quizzes = $DB->get_records_sql("
+            SELECT q.id, q.grade
+            FROM {quiz} q
+            JOIN {course_modules} cm ON cm.instance = q.id
+            JOIN {modules} m ON m.id = cm.module
+            WHERE q.course = :courseid
+              AND m.name = 'quiz'
+        ", ['courseid' => $course->course_id]);
 
-        if ($result->total == 0) {
-            // Se não há questionários, consideramos como não atendido.
-            return false;
-        }
+        foreach ($quizzes as $quiz) {
+            $grade = $DB->get_record('quiz_grades', [
+                'quiz' => $quiz->id,
+                'userid' => $USER->id
+            ]);
 
-        $percentCompleted = (int) $result->completed / (int) $result->total;
+            if (!$grade || $quiz->grade == 0) {
+                return false;
+            }
 
-        if ($percentCompleted < 0.5) {
-            return false;
+            $percent = ($grade->grade / $quiz->grade) * 100;
+
+            if ($percent < $minscore) {
+                return false;
+            }
         }
     }
 
@@ -779,7 +793,7 @@ function get_insignias()
             'popup' => '...',
         ],
         'maratonista_do_conhecimento' => (object)[
-            'tem' => has_completed_all_interactivevideos(),
+            'tem' => has_completed_all_modules_type('interactivevideo'),
             'ja_mostrou_popup' => false,
             'title' => 'Maratonista do Conhecimento',
             'description' => '...',
@@ -793,7 +807,7 @@ function get_insignias()
             'popup' => '...',
         ],
         'mestre_do_portal' => (object)[
-            'tem' => has_completed_half_quizzes(),
+            'tem' => check_all_quizzes_minimum_score(),
             'ja_mostrou_popup' => false,
             'title' => 'Mestre do Portal',
             'description' => '...',
