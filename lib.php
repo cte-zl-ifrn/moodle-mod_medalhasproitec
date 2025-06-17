@@ -855,10 +855,11 @@ function redirect_to_jornada_if_not_started()
             'mod_medalhasproitec/modal',
             'show',
             [
-                'Atenção',
-                'Você será redirecionado',
+                'Entrada Restrita',
+                'Você deverá começar sua jornada pelo Leste Potiguar (Seminário de Integração).',
                 $redirurl,
-                false
+                false,
+                null,
             ]
         );
     }
