@@ -10,7 +10,7 @@ define([], function() {
      * @param {boolean} [showCancel=false] - Exibir botão "Cancelar".
      * @param {function|null} [onConfirm=null] - Callback se não quiser redirecionar.
      */
-    function showCustomModal({ title, message, redirectUrl = null, showCancel = false, onConfirm = null, ajaxUrl = null }) {
+    function showCustomModal({ title, message, redirectUrl = null, showCancel = false, onConfirm = null, ajaxUrl = null, imgurl = null }) {
         const backdrop = document.getElementById('custom-modal-backdrop');
         const modal = document.getElementById('custom-modal');
         const titleElem = document.getElementById('custom-modal-title');
@@ -23,18 +23,29 @@ define([], function() {
             return;
         }
 
+        console.log(imgurl);
+
         titleElem.textContent = title;
         messageElem.textContent = message;
         cancelBtn.style.display = showCancel ? 'inline-block' : 'none';
         backdrop.style.display = 'flex';
         modalActive = true;
 
-        console.log(ajaxUrl)
+        // Se houver uma imagem, adiciona antes do título
+        if (imgurl) {
+            const img = document.createElement('img');
+            img.src = imgurl;
+            img.alt = '';
+            img.classList.add('custom-modal-image');
+            img.style.display = 'block';
+
+            titleElem.parentNode.insertBefore(img, titleElem);
+        }
 
         const marcarComoVisto = () => {
-            if (ajaxUrl) {
-                fetch(ajaxUrl);
-            }
+            // if (ajaxUrl) {
+            //     fetch(ajaxUrl);
+            // }
         };
 
         const cleanup = () => {
@@ -80,8 +91,8 @@ define([], function() {
         showCustomModal(next);
     }
 
-    function show(title, message, redirectUrl = null, showCancel = false, onConfirm = null, ajaxUrl) {
-        modalQueue.push({ title, message, redirectUrl, showCancel, onConfirm, ajaxUrl });
+    function show(title, message, redirectUrl = null, showCancel = false, onConfirm = null, ajaxUrl = null, imgurl = null) {
+        modalQueue.push({ title, message, redirectUrl, showCancel, onConfirm, ajaxUrl, imgurl });
         processQueue();
     }
 

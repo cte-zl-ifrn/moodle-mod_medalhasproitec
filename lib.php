@@ -336,6 +336,9 @@ function medalhasproitec_cm_info_view(cm_info $cm)
                 'medalhaid' => $id
             ]))->out();
 
+            $imgurl = (new moodle_url("/mod/medalhasproitec/pix/{$id}.png"))->out();
+
+
             $PAGE->requires->js_call_amd(
                 'mod_medalhasproitec/modal', // nome do seu módulo AMD
                 'show',
@@ -345,7 +348,8 @@ function medalhasproitec_cm_info_view(cm_info $cm)
                     null,
                     false,
                     null,
-                    $ajaxurl
+                    $ajaxurl,
+                    $imgurl
                 ]
             );
         }
