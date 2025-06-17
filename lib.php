@@ -332,7 +332,7 @@ function medalhasproitec_cm_info_view(cm_info $cm)
 
     $data = get_insignias();
     $content = $OUTPUT->render_from_template('mod_medalhasproitec/activitycard', $data);
-    $cm->set_content($content);
+    $cm->set_content($content, true);
 }
 
 
