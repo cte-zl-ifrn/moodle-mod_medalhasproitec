@@ -46,16 +46,16 @@ this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ## Regras
 
-| Medalha                        | Critério                                                                                    | Popup |
-| ------------------------------ | ------------------------------------------------------------------------------------------- | ---------- | 
-| 1. Sentinela do Codex          | Onde `c.jornada == true and c.completion_percentage > 0`                                    | ... a "Sentinela do Codex" por ter acessado este Codex .... |
-| 2. Maratonista do Conhecimento | Onde todos os módulos `interactivevideo` de todos os curso desta categoria, esteja completo | ... assistir a todas as video aulas do curso ...  |
-| 3. Busca pelo Saber            | Onde ao menos um `h5p`, do tipo book, foi lido em qualquer dos cursos desta categoria       | ... leu ao menos 1 livro ... |
-| 4. Mestre do Portal            | Onde acertou ao menos 50% de em todos os questionários  dos cursos desta categoria          | ... tu é o cara ... |
-| 5. Amante dos Números          | Onde a completude do curso `FIC.1196` seja `== 100%`                                        | ... NERD!!! ... |
-| 6. Amante das Palavras         | Onde a completude do curso `FIC.1195` seja `== 100%`                                        | ... Achamos um Camões!!! ... |
-| 7. Orgulho da Comunidade       | Onde a completude do curso `FIC.1197` seja `== 100%`                                        | ... Tá se achando o Sócrates!!! ... |
-| 8. Entusiasta do IFRN          | Onde a completude do curso `FIC.1198` seja `== 100%`                                        | ... Bom começo. ... |
+| Medalha                        | Critério                                                                                    | Popup                                                              |
+| ------------------------------ | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | 
+| 1. Sentinela do Codex          | Onde `c.jornada == true and c.completion_percentage > 0`                                    | Você acabou de obter o Codex. Sua jornada começa agora.            |
+| 2. Maratonista do Conhecimento | Onde todos os módulos `interactivevideo` de todos os curso desta categoria, esteja completo | Parabéns, você assistiu a todas as videoaulas!                     |
+| 3. Busca pelo Saber            | Onde ao menos um `h5p`, do tipo book, foi lido em qualquer dos cursos desta categoria       | Seu segundo livro foi concluído. Que venham os próximos...         |
+| 4. Mestre do Portal            | Onde acertou ao menos 50% de em todos os questionários  dos cursos desta categoria          | Missão cumprida. Chegou a hora de abrir o portal!                  |
+| 5. Amante dos Números          | Onde a completude do curso `FIC.1196` seja `== 100%`                                        | Você concluiu o módulo de matemática. Pitágoras estaria orgulhoso. |
+| 6. Amante das Palavras         | Onde a completude do curso `FIC.1195` seja `== 100%`                                        | Seu português afiado vai te levar longe.                           |
+| 7. Orgulho da Comunidade       | Onde a completude do curso `FIC.1197` seja `== 100%`                                        | Você é uma pessoa exemplar. Continue assim.                        |
+| 8. Entusiasta do IFRN          | Onde a completude do curso `FIC.1198` seja `== 100%`                                        | Você já está com um pé dentro do IFRN.                             |
 
 - diarios - Diários
   - ZL - Campus
@@ -66,4 +66,3 @@ this program.  If not, see <https://www.gnu.org/licenses/>.
             - **20242.1.527.1E**.`FIC.1197`#*654321* - Ética e Cidadania
             - **20242.1.527.1E**.`FIC.1196`#*654323* - Matemática
             - **20242.1.527.1E**.`FIC.1195`#*564322* - Língua Portuguesa
-

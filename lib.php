@@ -22,6 +22,11 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+define('CODIGO_DISCIPLINA_JORNADA', 'FIC.1198');
+define('CODIGO_DISCIPLINA_ETICA', 'FIC.1197');
+define('CODIGO_DISCIPLINA_MATEMATICA', 'FIC.1196');
+define('CODIGO_DISCIPLINA_PORTUGUES', 'FIC.1195');
+
 
 /**
  * Return if the plugin supports $feature.
@@ -327,7 +332,7 @@ function medalhasproitec_cm_info_view(cm_info $cm)
 
     $data = get_insignias();
     $content = $OUTPUT->render_from_template('mod_medalhasproitec/activitycard', $data);
-    $cm->set_content($content);
+    $cm->set_content($content, true);
 
     // 1) Estatísticas iniciais
     $totalMedalhas    = count($data);
@@ -388,6 +393,23 @@ function medalhasproitec_cm_info_view(cm_info $cm)
             ]
         );
     }
+}
+
+
+/**
+ * Extracts the disciplina from the idnumber.
+ *
+ * @param string $idnumber The idnumber to extract the disciplina from.
+ * @return string|null The extracted disciplina or null if not found.
+ */
+function get_disciplina_from_idnumber($idnumber)
+{
+    // Extrai o valor 'FIC.1197' do idnumber usando regex
+    $disciplina = null;
+    if (preg_match('/.*\.(FIC.\\d*)#.*/', $idnumber, $matches)) {
+        $disciplina = $matches[1];
+    }
+    return $disciplina;
 }
 
 
@@ -503,14 +525,33 @@ function get_courses_progress_as_list()
         ORDER BY c.idnumber DESC
         "
     );
-
+    $traducao = [
+        'FIC.1195' => [
+            'course_alias' => 'PEDRA DA LÓGICA',
+            'course_subtitle' => 'Viaje ate o Oeste Potiguar para obtê-la',
+            'stone_color' => '62, 193, 52'
+        ],
+        'FIC.1196' => [
+            'course_alias' => 'PEDRA DA COMUNICAÇÃO',
+            'course_subtitle' => 'Viaje ate a Central Potiguar para obtê-la',
+            'stone_color' => '253, 35, 217'
+        ],
+        'FIC.1197' => [
+            'course_alias' => 'PEDRA DA HARMONIA',
+            'course_subtitle' => 'Viaje ate o Agreste Potiguar para obtê-la',
+            'stone_color' => '242, 183, 34'
+        ],
+        'FIC.1198' => [
+            'course_alias' => 'PEDRA DA UNIDADE',
+            'course_subtitle' => 'Viaje ate o Leste Potiguar para obtê-la',
+            'stone_color' => '47, 109, 246'
+        ]
+    ];
 
     foreach ($courses as $course) {
         // Extrai o valor 'FIC.1197' do idnumber usando regex
-        $course->disciplina = null;
-        if (preg_match('/.*\.(FIC.\\d*)#.*/', $course->course_idnumber, $matches)) {
-            $course->disciplina = $matches[1];
-        }
+        $course->disciplina = get_disciplina_from_idnumber($course->course_idnumber);
+
         // If the course alias is not set, use the course fullname.
         if (empty($course->course_alias)) {
             $course->course_alias = $course->course_fullname;
@@ -526,6 +567,15 @@ function get_courses_progress_as_list()
         $course->iniciada = TRUE;
         $course->concluida = $course->completion_percentage >= 100;
         $course->jornada = $course->disciplina === 'FIC.1198';
+
+        if (array_key_exists($course->disciplina, $traducao)) {
+            $course->stone_color =  $traducao[$course->disciplina]['stone_color'];
+            $course->course_alias = $traducao[$course->disciplina]['course_alias'];
+            $course->course_subtitle = $traducao[$course->disciplina]['course_subtitle'];
+        } else {
+            $course->stone_color = '0, 255, 255';
+        }
+        $course->isactive = ($course->course_id == $COURSE->id) ? 'd-flex' : 'hidden';
     }
     return array_values($courses);
 }
