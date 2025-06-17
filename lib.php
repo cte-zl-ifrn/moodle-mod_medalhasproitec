@@ -333,6 +333,66 @@ function medalhasproitec_cm_info_view(cm_info $cm)
     $data = get_insignias();
     $content = $OUTPUT->render_from_template('mod_medalhasproitec/activitycard', $data);
     $cm->set_content($content, true);
+
+    // 1) Estatísticas iniciais
+    $totalMedalhas    = count($data);
+    $countTem         = 0;
+    $pendingInsignias = [];      // vai guardar as medalhas que mostram agora
+
+    foreach ($data as $id => $insignia) {
+        if ($insignia->tem) {
+            $countTem++;
+            if (!$insignia->ja_mostrou_popup) {
+                $pendingInsignias[$id] = $insignia;
+            }
+        }
+    }
+
+    // 2) Enfileira os modais de cada pendente
+    foreach ($pendingInsignias as $id => $insignia) {
+        $ajaxurl = (new moodle_url('/mod/medalhasproitec/ajax_mark_modal_shown.php', [
+            'medalhaid' => $id
+        ]))->out();
+        $imgurl = (new moodle_url("/mod/medalhasproitec/pix/{$id}.png"))->out();
+
+        $PAGE->requires->js_call_amd(
+            'mod_medalhasproitec/modal',
+            'show',
+            [
+                $insignia->title,
+                $insignia->popup,
+                null,
+                false,
+                null,
+                $ajaxurl,
+                $imgurl
+            ]
+        );
+    }
+
+    // 3) Se agora o usuário já tem todas e temos pelo menos uma pendente,
+    //    enfileira o modal de conclusão **depois de todos os anteriores**.
+    if ($countTem === $totalMedalhas && count($pendingInsignias) > 0) {
+        $imgurlFinal = (new moodle_url('/mod/medalhasproitec/pix/ISA-VITORIOSA.png'))->out();
+
+        $ajaxurlFinal = (new moodle_url('/mod/medalhasproitec/ajax_mark_modal_shown.php', [
+            'medalhaid' => 'conquista_final'
+        ]))->out();
+
+        $PAGE->requires->js_call_amd(
+            'mod_medalhasproitec/modal',
+            'show',
+            [
+                'Conquista Completa!',
+                'Você conquistou todas as medalhas. Sua jornada foi incrível!',
+                null,
+                false,
+                null,
+                $ajaxurlFinal,
+                $imgurlFinal
+            ]
+        );
+    }
 }
 
 
@@ -434,7 +494,7 @@ function get_courses_progress_as_list()
             SELECT c.id                                       AS course_id
             , c.idnumber                                      AS course_idnumber
             , c.fullname                                      AS course_fullname
-            , c.shortname                                      AS course_shortname
+            , c.shortname                                     AS course_shortname
             , (SELECT cd.value
                 FROM mdl_customfield_data                cd
                         INNER JOIN mdl_customfield_field cf ON
@@ -454,10 +514,13 @@ function get_courses_progress_as_list()
             , COUNT(mc.id)                                    AS completed_modules
             , TRUNC((COUNT(mc.id) * 100.0 / COUNT(cm.id)), 0) AS completion_percentage
         FROM mdl_course                                   c
-                INNER JOIN mdl_course_modules            cm ON (c.id = cm.course)
-                LEFT JOIN  mdl_course_modules_completion mc ON (cm.id = mc.coursemoduleid)
+                INNER JOIN mdl_course_modules cm
+                    ON (c.id = cm.course)
+                    AND cm.completion > 0
+                LEFT JOIN  mdl_course_modules_completion mc 
+                    ON (cm.id = mc.coursemoduleid)
+                    AND mc.userid = $USER->id
         WHERE c.category = $COURSE->category
-        AND (mc.userid = $USER->id OR mc.userid IS NULL)
         GROUP BY c.id, c.fullname, c.shortname, c.idnumber
         ORDER BY c.idnumber DESC
         "
@@ -614,6 +677,196 @@ function get_courses_progress_as_dict()
 }
 
 /**
+ * Obtém o total de atividades de um tipo específico em um curso e quantas delas foram concluídas por um usuário.
+ *
+ * @param int $courseid ID do curso.
+ * @param string $modulename Nome do módulo (como definido em mdl_modules.name).
+ * @param int $userid ID do usuário.
+ * @return stdClass Objeto contendo as propriedades 'total' (total de módulos com conclusão)
+ *                  e 'completed' (quantos foram concluídos pelo usuário).
+ */
+function get_course_module_type_completion(int $courseid, string $modulename, int $userid): stdClass
+{
+    global $DB;
+
+    $sql = "
+        SELECT COUNT(cm.id) AS total,
+               COUNT(mc.id) FILTER (WHERE mc.completionstate = 1) AS completed
+          FROM {course_modules} cm
+          JOIN {modules} m ON m.id = cm.module
+     LEFT JOIN {course_modules_completion} mc ON mc.coursemoduleid = cm.id AND mc.userid = :userid
+         WHERE cm.course = :courseid
+           AND m.name = :modulename
+           AND cm.completion > 0
+    ";
+
+    return $DB->get_record_sql($sql, [
+        'courseid'   => $courseid,
+        'modulename' => $modulename,
+        'userid'     => $userid
+    ]);
+}
+
+
+/**
+ * Verifica se o usuário atual concluiu todos os módulos do tipo passado por parâmetro em todos os cursos.
+ *
+ * Retorna false assim que encontrar um curso com pelo menos um vídeo interativo não concluído.
+ * Caso contrário, retorna true, indicando que todos foram concluídos.
+ *
+ * @global moodle_database $DB Instância global do banco de dados.
+ * @global stdClass $USER Objeto global do usuário logado.
+ * @return bool True se todos os módulos foram concluídos; false caso contrário.
+ */
+function has_completed_all_modules_type(string $modulename): bool
+{
+    global $USER;
+
+    $courses = get_courses_progress_as_list();
+
+    foreach ($courses as $course) {
+        $result = get_course_module_type_completion(
+            $course->course_id,
+            $modulename,
+            $USER->id
+        );
+
+        if ($result && $result->total > 0 && $result->completed < $result->total) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+
+/**
+ * Verifica se o usuário acertou pelo menos 50% em todos os questionários de todos os curso.
+ *
+ * @param int $courseid ID do curso.
+ * @param int|null $userid ID do usuário (opcional, padrão: usuário logado).
+ * @return bool True se acertou pelo menos 50%, false caso contrário.
+ */
+function check_all_quizzes_minimum_score($minscore = 50): bool
+{
+    global $DB, $USER;
+
+    if (!has_completed_all_modules_type('quiz')) {
+        return false;
+    }
+
+    $courses = get_courses_progress_as_list();
+
+    foreach ($courses as $course) {
+        // Busca todos os quizzes do curso
+        $quizzes = $DB->get_records_sql("
+            SELECT q.id, q.grade
+            FROM {quiz} q
+            JOIN {course_modules} cm ON cm.instance = q.id
+            JOIN {modules} m ON m.id = cm.module
+            WHERE q.course = :courseid
+              AND m.name = 'quiz'
+        ", ['courseid' => $course->course_id]);
+
+        foreach ($quizzes as $quiz) {
+            $grade = $DB->get_record('quiz_grades', [
+                'quiz' => $quiz->id,
+                'userid' => $USER->id
+            ]);
+
+            if (!$grade || $quiz->grade == 0) {
+                return false;
+            }
+
+            $percent = ($grade->grade / $quiz->grade) * 100;
+
+            if ($percent < $minscore) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+
+/**
+ * Verifica se o usuário atual concluiu ao menos uma atividade H5P
+ * em todos os cursos nos quais está matriculado.
+ *
+ * A função percorre os cursos e verifica se há ao menos um módulo 
+ * do tipo 'h5pactivity' ou 'hvp' concluído.
+ *
+ * @return bool True se o usuário concluiu ao menos uma atividade H5P, false caso contrário.
+ */
+function at_least_read_one_book(): bool
+{
+    global $USER;
+
+    $courses = get_courses_progress_as_list();
+
+    foreach ($courses as $course) {
+        // Se concluiu ao menos um módulo do tipo 'h5pactivity'
+        $h5pactivity = get_course_module_type_completion(
+            $course->course_id,
+            'h5pactivity',
+            $USER->id
+        );
+
+        if ($h5pactivity && isset($h5pactivity->completed) && (int) $h5pactivity->completed > 0) {
+            return true;
+        }
+
+        // Se concluiu ao menos um módulo do tipo 'hvp'
+        $hvp = get_course_module_type_completion(
+            $course->course_id,
+            'hvp',
+            $USER->id
+        );
+
+        if ($hvp && isset($hvp->completed) && (int) $hvp->completed > 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+function redirect_to_jornada_if_not_started()
+{
+    global $COURSE, $USER, $PAGE;
+
+    $courses = get_courses_progress_as_dict();
+
+    $jornadaid = $courses['jornada']->course_id ?? 0;
+
+    // Só prepara o redirecionamento se realmente precisar
+    $shouldredirect = (
+        isset($courses['jornada']) &&
+        $courses['jornada']->completion_percentage <= 0 &&
+        $COURSE->id != $jornadaid
+    );
+
+    if ($shouldredirect) {
+        // URL de destino
+        $redirurl = (new moodle_url('/course/view.php', ['id' => $jornadaid]))->out(false);
+
+        $PAGE->requires->js_call_amd(
+            'mod_medalhasproitec/modal',
+            'show',
+            [
+                'Entrada Restrita',
+                'Você deverá começar sua jornada pelo Leste Potiguar (Seminário de Integração).',
+                $redirurl,
+                false,
+                null,
+            ]
+        );
+    }
+}
+
+
+/**
  * Get the status of the courses based on the matrix curricular.
  *
  * Exemplo:
@@ -673,64 +926,74 @@ function get_courses_progress_as_dict()
 function get_insignias()
 {
     global $DB, $CFG, $COURSE, $USER;
-    $courses = get_courses_progress_as_list();
+    $courses = get_courses_progress_as_dict();
+
+    redirect_to_jornada_if_not_started();
+
+    // Pega todos os slugs de medalha já mostrados para o usuário
+    $shownrecords = $DB->get_records_menu(
+        'medalhasproitec_shown_modal',
+        ['userid' => $USER->id],
+        '',
+        'medalhaid, medalhaid'
+    );
 
     $insignias = [
         'sentinela_do_codex' => (object)[
-            'tem' => false,
-            'ja_mostrou' => false,
+            'tem' => isset($courses['jornada']) && $courses['jornada']->completion_percentage > 0,
+            'ja_mostrou_popup' => array_key_exists('sentinela_do_codex', $shownrecords),
             'title' => 'Sentinela do Codex',
             'description' => '...',
-            'popup' => '...',
+            'popup' => 'Você acabou de obter o Codex. Sua jornada começa agora.',
         ],
         'maratonista_do_conhecimento' => (object)[
-            'tem' => false,
-            'mostrar_popup' => false,
+            'tem' => has_completed_all_modules_type('interactivevideo'),
+            'ja_mostrou_popup' => array_key_exists('maratonista_do_conhecimento', $shownrecords),
             'title' => 'Maratonista do Conhecimento',
             'description' => '...',
-            'popup' => '...',
+            'popup' => 'Parabéns, você assistiu a todas as videoaulas!',
         ],
         'busca_pelo_saber' => (object)[
-            'tem' => false,
-            'mostrar_popup' => false,
+            'tem' => at_least_read_one_book(),
+            'ja_mostrou_popup' => array_key_exists('busca_pelo_saber', $shownrecords),
             'title' => 'Busca pelo Saber',
             'description' => '...',
-            'popup' => '...',
+            'popup' => 'Seu primeiro livro foi concluído. Que venham os próximos...',
         ],
         'mestre_do_portal' => (object)[
-            'tem' => false,
-            'mostrar_popup' => false,
+            'tem' => check_all_quizzes_minimum_score(),
+            'ja_mostrou_popup' => array_key_exists('mestre_do_portal', $shownrecords),
             'title' => 'Mestre do Portal',
             'description' => '...',
-            'popup' => '...',
+            'popup' => 'Missão cumprida. Chegou a hora de abrir o portal!',
         ],
         'amante_dos_numeros' => (object)[
-            'tem' => false,
-            'mostrar_popup' => false,
+            'tem' => isset($courses['matematica']) && $courses['matematica']->concluida,
+            'ja_mostrou_popup' => array_key_exists('amante_dos_numeros', $shownrecords),
             'title' => 'Amante dos Números',
             'description' => '...',
-            'popup' => '...',
+            'popup' => 'Você concluiu o módulo de matemática. Pitágoras estaria orgulhoso.',
         ],
         'amante_das_palavras' => (object)[
-            'tem' => false,
-            'mostrar_popup' => false,
+            'tem' => isset($courses['portugues']) && $courses['portugues']->concluida,
+            'ja_mostrou_popup' => array_key_exists('amante_das_palavras', $shownrecords),
             'title' => 'Amante das Palavras',
             'description' => '...',
-            'popup' => '...',
+            'popup' => 'Seu português afiado vai te levar longe.',
         ],
         'orgulho_da_comunidade' => (object)[
-            'tem' => false,
-            'mostrar_popup' => false,
+            'tem' => isset($courses['etica']) && $courses['etica']->concluida,
+            'ja_mostrou_popup' => array_key_exists('orgulho_da_comunidade', $shownrecords),
             'title' => 'Orgulho da Comunidade',
             'description' => '...',
-            'popup' => '...',
+            'popup' => 'Você é uma pessoa exemplar. Continue assim.',
         ],
         'entusiasta_do_ifrn' => (object)[
-            'tem' => false,
-            'mostrar_popup' => false,
+            'tem' => isset($courses['jornada']) && $courses['jornada']->concluida,
+            'ja_mostrou_popup' => array_key_exists('entusiasta_do_ifrn', $shownrecords),
             'title' => 'Entusiasta do IFRN',
             'description' => '...',
-            'popup' => '...',
+            'popup' => 'Você já está com um pé dentro do IFRN.',
         ],
     ];
     return $insignias;

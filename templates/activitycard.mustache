@@ -1,48 +1,13 @@
-{{!
-    This file is part of Moodle - https://moodle.org/
-
-    Moodle is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    Moodle is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-}}
-{{!
-    @template mod_medalhasproitec/medalhasproitec
-
-    Template purpose and description.
-
-    Classes required for JS:
-    * none
-
-    Data attributes required for JS:
-    * none
-
-    Context variables required for this template:
-    * attributes Array of name / value pairs.
-
-    Example context (json):
-    {
-        "attributes": [
-            { "name": "src", "value": "https://example.com/imgs/logo.png" },
-            { "name": "class", "value": "iconsmall" }
-        ]
-    }
-}}
-
-
 <style>
 .activity.modtype_medalhasproitec {
     border: none;
+    position: relative;
+    .no-overflow {
+        overflow: unset;
+    }
 }
-.activity.modtype_medalhasproitec .activity-icon, .activity.modtype_medalhasproitec .activity-name-area {
+.activity.modtype_medalhasproitec .activity-icon,
+.activity.modtype_medalhasproitec .activity-name-area {
     display: none !important;
 }
 .activity.modtype_medalhasproitec .activity-description {
@@ -54,7 +19,40 @@
     filter: grayscale(100%);
 }
 
-.dialog-box {
+.activity.modtype_medalhasproitec .badge-container {
+    position: relative;
+    display: inline-block;
+    margin: 5px;
+}
+
+.activity.modtype_medalhasproitec .badge-container .tooltip {
+    visibility: hidden;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 8px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    white-space: nowrap;
+    font-size: 12px;
+}
+
+.activity.modtype_medalhasproitec .badge-container:hover .tooltip {
+    visibility: visible;
+    opacity: 1;
+}
+
+.activity.modtype_medalhasproitec .badge-container img {
+    width: 48px;
+}
+
+.activity.modtype_medalhasproitec .dialog-box {
     width: 300px;
     background-color: white;
     padding: 20px;
@@ -62,7 +60,7 @@
     box-shadow: 0 0 10px rgba(0,0,0,0.2);
     text-align: center;
 }
-.dialog-box button {
+.activity.modtype_medalhasproitec .dialog-box button {
     margin-top: 10px;
     padding: 8px 15px;
     border: none;
@@ -71,26 +69,122 @@
     border-radius: 5px;
     cursor: pointer;
 }
-.dialog-box button:hover {
+.activity.modtype_medalhasproitec .dialog-box button:hover {
     background-color: #005bb5;
+}
+
+
+.activity.modtype_medalhasproitec .custom-modal-backdrop {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.activity.modtype_medalhasproitec .custom-modal {
+    background: #fff;
+    padding: 2em;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+}
+
+.activity.modtype_medalhasproitec .custom-modal-image {
+    width: auto;
+    max-height: 140px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 1rem;    
+}
+
+.activity.modtype_medalhasproitec #custom-modal-title {
+    margin-bottom: 1rem
+}
+
+.activity.modtype_medalhasproitec .custom-modal-actions button {
+    margin: 1em 0.5em 0 0.5em;
+    padding: 0.5em 1.2em;
+    border: none;
+    border-radius: .5rem;
+    transition: all 0.3s ease;
+}
+.activity.modtype_medalhasproitec .custom-modal-actions button:hover {
+    background-color: #c7c7c7; /* Um tom de cinza um pouco mais escuro */
 }
 
 </style>
 
-<div style='text-align: center;'>
-<img src="{{wwwroot}}/mod/medalhasproitec/pix/sentinela_do_codex.png"          width="48" {{^sentinela_do_codex.tem}}          class='opaco' {{/sentinela_do_codex.tem}} />
-<img src="{{wwwroot}}/mod/medalhasproitec/pix/maratonista_do_conhecimento.png" width="48" {{^maratonista_do_conhecimento.tem}} class='opaco' {{/maratonista_do_conhecimento.tem}} />
-<img src="{{wwwroot}}/mod/medalhasproitec/pix/busca_pelo_saber.png"            width="48" {{^busca_pelo_saber.tem}}            class='opaco' {{/busca_pelo_saber.tem}} />
-<img src="{{wwwroot}}/mod/medalhasproitec/pix/mestre_do_portal.png"            width="48" {{^mestre_do_portal.tem}}            class='opaco' {{/mestre_do_portal.tem}} />
-<img src="{{wwwroot}}/mod/medalhasproitec/pix/amante_dos_numeros.png"          width="48" {{^amante_dos_numeros.tem}}          class='opaco' {{/amante_dos_numeros.tem}} />
-<img src="{{wwwroot}}/mod/medalhasproitec/pix/amante_das_palavras.png"         width="48" {{^amante_das_palavras.tem}}         class='opaco' {{/amante_das_palavras.tem}} />
-<img src="{{wwwroot}}/mod/medalhasproitec/pix/orgulho_da_comunidade.png"       width="48" {{^orgulho_da_comunidade.tem}}       class='opaco' {{/orgulho_da_comunidade.tem}} />
-<img src="{{wwwroot}}/mod/medalhasproitec/pix/entusiasta_do_ifrn.png"          width="48" {{^entusiasta_do_ifrn.tem}}          class='opaco' {{/entusiasta_do_ifrn.tem}} />
+<div style="text-align: center;">
+  <div class="badge-container">
+    <img src="{{wwwroot}}/mod/medalhasproitec/pix/sentinela_do_codex.png" {{^sentinela_do_codex.tem}}class="opaco"{{/sentinela_do_codex.tem}} />
+    <div class="tooltip">
+        <strong>Sentinela do Códex</strong><br>
+        Obetenha pelo menos 1% de progresso no Seminário de Integração
+    </div>
+  </div>
+  <div class="badge-container">
+    <img src="{{wwwroot}}/mod/medalhasproitec/pix/maratonista_do_conhecimento.png" {{^maratonista_do_conhecimento.tem}}class="opaco"{{/maratonista_do_conhecimento.tem}} />
+    <div class="tooltip">
+        <strong>Maratonista do Conhecimento</strong><br>
+        Assista a todas as videoaulas de todos os cursos
+    </div>
+  </div>
+  <div class="badge-container">
+    <img src="{{wwwroot}}/mod/medalhasproitec/pix/busca_pelo_saber.png" {{^busca_pelo_saber.tem}}class="opaco"{{/busca_pelo_saber.tem}} />
+    <div class="tooltip">
+        <strong>Busca pelo Saber</strong><br>
+        Leia pelo menos um livro em qualquer curso
+    </div>
+  </div>
+  <div class="badge-container">
+    <img src="{{wwwroot}}/mod/medalhasproitec/pix/mestre_do_portal.png" {{^mestre_do_portal.tem}}class="opaco"{{/mestre_do_portal.tem}} />
+    <div class="tooltip">
+        <strong>Mestre do Portal</strong><br>
+        Acerte 50% ou mais em todos os questionários de todos os cursos
+    </div>
+  </div>
+  <div class="badge-container">
+    <img src="{{wwwroot}}/mod/medalhasproitec/pix/amante_dos_numeros.png" {{^amante_dos_numeros.tem}}class="opaco"{{/amante_dos_numeros.tem}} />
+    <div class="tooltip">
+        <strong>Amante dos Números</strong><br>
+        Conclua 100% do curso de Matemática
+    </div>
+  </div>
+  <div class="badge-container">
+    <img src="{{wwwroot}}/mod/medalhasproitec/pix/amante_das_palavras.png" {{^amante_das_palavras.tem}}class="opaco"{{/amante_das_palavras.tem}} />
+    <div class="tooltip">
+        <strong>Amante das Palavras</strong><br>
+        Conclua 100% do curso de Língua Portuguesa
+    </div>
+  </div>
+  <div class="badge-container">
+    <img src="{{wwwroot}}/mod/medalhasproitec/pix/orgulho_da_comunidade.png" {{^orgulho_da_comunidade.tem}}class="opaco"{{/orgulho_da_comunidade.tem}} />
+    <div class="tooltip">
+        <strong>Orgulho da Comunidade</strong><br>
+        Conclua 100% do curso de Ética e Cidadania
+    </div>
+  </div>
+  <div class="badge-container">
+    <img src="{{wwwroot}}/mod/medalhasproitec/pix/entusiasta_do_ifrn.png" {{^entusiasta_do_ifrn.tem}}class="opaco"{{/entusiasta_do_ifrn.tem}} />
+    <div class="tooltip">
+        <strong>Entusiasta do IFRN</strong><br>
+        Conclua 100% do curso Seminário de Integração
+    </div>
+  </div>
 </div>
 
-{{#sentinela_do_codex.mostrar_popup}}
-<div class="dialog-box">
-    <p>Você deseja continuar?</p>
-    <button onclick="alert('Você clicou em OK!')">OK</button>
+<div id="custom-modal-backdrop" class="custom-modal-backdrop" style="display: none;">
+    <div id="custom-modal" class="custom-modal">
+        <img id="custom-modal-image" class="custom-modal-image" src="" alt="" style="display: none;" />
+        <h3 id="custom-modal-title"></h3>
+        <p id="custom-modal-message"></p>
+        <div class="custom-modal-actions">
+            <button id="custom-modal-confirm">OK</button>
+            <button id="custom-modal-cancel" style="display: none;">Cancelar</button>
+        </div>
+    </div>
 </div>
-{{/sentinela_do_codex.mostrar_popup}}
