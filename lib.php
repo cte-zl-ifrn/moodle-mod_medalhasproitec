@@ -329,30 +329,64 @@ function medalhasproitec_cm_info_view(cm_info $cm)
     $content = $OUTPUT->render_from_template('mod_medalhasproitec/activitycard', $data);
     $cm->set_content($content);
 
+    // 1) Estatísticas iniciais
+    $totalMedalhas    = count($data);
+    $countTem         = 0;
+    $pendingInsignias = [];      // vai guardar as medalhas que mostram agora
+
     foreach ($data as $id => $insignia) {
-        if ($insignia->tem && !$insignia->ja_mostrou_popup) {
-
-            $ajaxurl = (new moodle_url('/mod/medalhasproitec/ajax_mark_modal_shown.php', [
-                'medalhaid' => $id
-            ]))->out();
-
-            $imgurl = (new moodle_url("/mod/medalhasproitec/pix/{$id}.png"))->out();
-
-
-            $PAGE->requires->js_call_amd(
-                'mod_medalhasproitec/modal', // nome do seu módulo AMD
-                'show',
-                [
-                    $insignia->title,
-                    $insignia->popup,
-                    null,
-                    false,
-                    null,
-                    $ajaxurl,
-                    $imgurl
-                ]
-            );
+        if ($insignia->tem) {
+            $countTem++;
+            if (!$insignia->ja_mostrou_popup) {
+                $pendingInsignias[$id] = $insignia;
+            }
         }
+    }
+
+    // 2) Enfileira os modais de cada pendente
+    foreach ($pendingInsignias as $id => $insignia) {
+        $ajaxurl = (new moodle_url('/mod/medalhasproitec/ajax_mark_modal_shown.php', [
+            'medalhaid' => $id
+        ]))->out();
+        $imgurl = (new moodle_url("/mod/medalhasproitec/pix/{$id}.png"))->out();
+
+        $PAGE->requires->js_call_amd(
+            'mod_medalhasproitec/modal',
+            'show',
+            [
+                $insignia->title,
+                $insignia->popup,
+                null,
+                false,
+                null,
+                $ajaxurl,
+                $imgurl
+            ]
+        );
+    }
+
+    // 3) Se agora o usuário já tem todas e temos pelo menos uma pendente,
+    //    enfileira o modal de conclusão **depois de todos os anteriores**.
+    if ($countTem === $totalMedalhas && count($pendingInsignias) > 0) {
+        $imgurlFinal = (new moodle_url('/mod/medalhasproitec/pix/ISA-VITORIOSA.png'))->out();
+
+        $ajaxurlFinal = (new moodle_url('/mod/medalhasproitec/ajax_mark_modal_shown.php', [
+            'medalhaid' => 'conquista_final'
+        ]))->out();
+
+        $PAGE->requires->js_call_amd(
+            'mod_medalhasproitec/modal',
+            'show',
+            [
+                'Conquista Completa!',
+                'Você conquistou todas as medalhas. Sua jornada foi incrível!',
+                null,
+                false,
+                null,
+                $ajaxurlFinal,
+                $imgurlFinal
+            ]
+        );
     }
 }
 

@@ -13,6 +13,7 @@ define([], function() {
     function showCustomModal({ title, message, redirectUrl = null, showCancel = false, onConfirm = null, ajaxUrl = null, imgurl = null }) {
         const backdrop = document.getElementById('custom-modal-backdrop');
         const modal = document.getElementById('custom-modal');
+        const imageElem = document.getElementById('custom-modal-image');
         const titleElem = document.getElementById('custom-modal-title');
         const messageElem = document.getElementById('custom-modal-message');
         const confirmBtn = document.getElementById('custom-modal-confirm');
@@ -23,29 +24,26 @@ define([], function() {
             return;
         }
 
-        console.log(imgurl);
-
         titleElem.textContent = title;
         messageElem.textContent = message;
         cancelBtn.style.display = showCancel ? 'inline-block' : 'none';
         backdrop.style.display = 'flex';
         modalActive = true;
 
-        // Se houver uma imagem, adiciona antes do título
-        if (imgurl) {
-            const img = document.createElement('img');
-            img.src = imgurl;
-            img.alt = '';
-            img.classList.add('custom-modal-image');
-            img.style.display = 'block';
-
-            titleElem.parentNode.insertBefore(img, titleElem);
+        if (imageElem) {
+            if (imgurl) {
+                imageElem.src = imgurl;
+                imageElem.style.display = 'block';
+            } else {
+                imageElem.src = '';
+                imageElem.style.display = 'none';
+            }
         }
 
         const marcarComoVisto = () => {
-            // if (ajaxUrl) {
-            //     fetch(ajaxUrl);
-            // }
+            if (ajaxUrl) {
+                fetch(ajaxUrl);
+            }
         };
 
         const cleanup = () => {
