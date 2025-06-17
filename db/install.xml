@@ -19,5 +19,19 @@
         <KEY NAME="fk_course" TYPE="foreign" FIELDS="course" REFTABLE="course" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
+
+    <!-- Nova tabela para controlar exibição de modal -->
+    <TABLE NAME="medalhasproitec_shown_modal" COMMENT="Registra modais de medalhas já mostrados para os usuários.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="medalhaid" TYPE="char" LENGTH="100" NOTNULL="true"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="usermedalha_unique" TYPE="unique" FIELDS="userid,medalhaid"/>
+      </KEYS>
+    </TABLE>
   </TABLES>
 </XMLDB>

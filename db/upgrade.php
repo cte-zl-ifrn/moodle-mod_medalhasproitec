@@ -25,7 +25,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once(__DIR__.'/upgradelib.php');
+require_once(__DIR__ . '/upgradelib.php');
 
 /**
  * Execute mod_medalhasproitec upgrade from the given old version.
@@ -33,7 +33,8 @@ require_once(__DIR__.'/upgradelib.php');
  * @param int $oldversion
  * @return bool
  */
-function xmldb_medalhasproitec_upgrade($oldversion) {
+function xmldb_medalhasproitec_upgrade($oldversion)
+{
     global $DB;
 
     $dbman = $DB->get_manager();
@@ -42,6 +43,32 @@ function xmldb_medalhasproitec_upgrade($oldversion) {
     //
     // You will also have to create the db/install.xml file by using the XMLDB Editor.
     // Documentation for the XMLDB Editor can be found at {@link https://docs.moodle.org/dev/XMLDB_editor}.
+
+    if ($oldversion < 2025061601) {
+
+        // Define a nova tabela medalhasproitec_shown_modal.
+        $table = new xmldb_table('medalhasproitec_shown_modal');
+
+        // Adiciona os campos.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('medalhaid', XMLDB_TYPE_CHAR, '100', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+
+        // Define a chave primária.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Define chave única para evitar duplicação.
+        $table->add_key('usermedalha_unique', XMLDB_KEY_UNIQUE, ['userid', 'medalhaid']);
+
+        // Cria a tabela se ainda não existir.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Marca o upgrade como completo.
+        upgrade_mod_savepoint(true, 2025061601, 'medalhasproitec');
+    }
 
     return true;
 }

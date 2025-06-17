@@ -325,10 +325,31 @@ function medalhasproitec_cm_info_view(cm_info $cm)
 {
     global $PAGE, $OUTPUT, $COURSE;
 
-
     $data = get_insignias();
     $content = $OUTPUT->render_from_template('mod_medalhasproitec/activitycard', $data);
     $cm->set_content($content);
+
+    foreach ($data as $id => $insignia) {
+        if ($insignia->tem && !$insignia->ja_mostrou_popup) {
+
+            $ajaxurl = (new moodle_url('/mod/medalhasproitec/ajax_mark_modal_shown.php', [
+                'medalhaid' => $id
+            ]))->out();
+
+            $PAGE->requires->js_call_amd(
+                'mod_medalhasproitec/modal', // nome do seu módulo AMD
+                'show',
+                [
+                    $insignia->title,
+                    $insignia->popup,
+                    null,
+                    false,
+                    null,
+                    $ajaxurl
+                ]
+            );
+        }
+    }
 }
 
 
@@ -742,9 +763,8 @@ function redirect_to_jornada_if_not_started()
         // URL de destino
         $redirurl = (new moodle_url('/course/view.php', ['id' => $jornadaid]))->out(false);
 
-        // 1. Passa a URL e a mensagem ao JS
         $PAGE->requires->js_call_amd(
-            'mod_medalhasproitec/redirectmodal', // nome do seu módulo AMD
+            'mod_medalhasproitec/modal',
             'show',
             [
                 'Atenção',
@@ -821,62 +841,70 @@ function get_insignias()
 
     redirect_to_jornada_if_not_started();
 
+    // Pega todos os slugs de medalha já mostrados para o usuário
+    $shownrecords = $DB->get_records_menu(
+        'medalhasproitec_shown_modal',
+        ['userid' => $USER->id],
+        '',
+        'medalhaid, medalhaid'
+    );
+
     $insignias = [
         'sentinela_do_codex' => (object)[
             'tem' => isset($courses['jornada']) && $courses['jornada']->completion_percentage > 0,
-            'ja_mostrou_popup' => false,
+            'ja_mostrou_popup' => array_key_exists('sentinela_do_codex', $shownrecords),
             'title' => 'Sentinela do Codex',
             'description' => '...',
-            'popup' => '...',
+            'popup' => 'Você acabou de obter o Codex. Sua jornada começa agora.',
         ],
         'maratonista_do_conhecimento' => (object)[
             'tem' => has_completed_all_modules_type('interactivevideo'),
-            'ja_mostrou_popup' => false,
+            'ja_mostrou_popup' => array_key_exists('maratonista_do_conhecimento', $shownrecords),
             'title' => 'Maratonista do Conhecimento',
             'description' => '...',
-            'popup' => '...',
+            'popup' => 'Parabéns, você assistiu a todas as videoaulas!',
         ],
         'busca_pelo_saber' => (object)[
             'tem' => at_least_read_one_book(),
-            'ja_mostrou_popup' => false,
+            'ja_mostrou_popup' => array_key_exists('busca_pelo_saber', $shownrecords),
             'title' => 'Busca pelo Saber',
             'description' => '...',
-            'popup' => '...',
+            'popup' => 'Seu primeiro livro foi concluído. Que venham os próximos...',
         ],
         'mestre_do_portal' => (object)[
             'tem' => check_all_quizzes_minimum_score(),
-            'ja_mostrou_popup' => false,
+            'ja_mostrou_popup' => array_key_exists('mestre_do_portal', $shownrecords),
             'title' => 'Mestre do Portal',
             'description' => '...',
-            'popup' => '...',
+            'popup' => 'Missão cumprida. Chegou a hora de abrir o portal!',
         ],
         'amante_dos_numeros' => (object)[
             'tem' => isset($courses['matematica']) && $courses['matematica']->concluida,
-            'ja_mostrou_popup' => false,
+            'ja_mostrou_popup' => array_key_exists('amante_dos_numeros', $shownrecords),
             'title' => 'Amante dos Números',
             'description' => '...',
-            'popup' => '...',
+            'popup' => 'Você concluiu o módulo de matemática. Pitágoras estaria orgulhoso.',
         ],
         'amante_das_palavras' => (object)[
             'tem' => isset($courses['portugues']) && $courses['portugues']->concluida,
-            'ja_mostrou_popup' => false,
+            'ja_mostrou_popup' => array_key_exists('amante_das_palavras', $shownrecords),
             'title' => 'Amante das Palavras',
             'description' => '...',
-            'popup' => '...',
+            'popup' => 'Seu português afiado vai te levar longe.',
         ],
         'orgulho_da_comunidade' => (object)[
             'tem' => isset($courses['etica']) && $courses['etica']->concluida,
-            'ja_mostrou_popup' => false,
+            'ja_mostrou_popup' => array_key_exists('orgulho_da_comunidade', $shownrecords),
             'title' => 'Orgulho da Comunidade',
             'description' => '...',
-            'popup' => '...',
+            'popup' => 'Você é uma pessoa exemplar. Continue assim.',
         ],
         'entusiasta_do_ifrn' => (object)[
             'tem' => isset($courses['jornada']) && $courses['jornada']->concluida,
-            'ja_mostrou_popup' => false,
+            'ja_mostrou_popup' => array_key_exists('entusiasta_do_ifrn', $shownrecords),
             'title' => 'Entusiasta do IFRN',
             'description' => '...',
-            'popup' => '...',
+            'popup' => 'Você já está com um pé dentro do IFRN.',
         ],
     ];
     return $insignias;
