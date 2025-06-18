@@ -23,10 +23,12 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+required_once(__DIR__ . '/upgradelib.php');
+
 /**
  * Custom code to be run on installing the plugin.
  */
-function xmldb_medalhasproitec_install() {
-
-    return true;
+function xmldb_medalhasproitec_install()
+{
+    return mod_medalhasproitec_install_and_upgrade_tables(0);
 }
