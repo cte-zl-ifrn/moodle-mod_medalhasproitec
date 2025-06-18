@@ -1,20 +1,25 @@
 <?php
-// This file is part of Moodle - https://moodle.org/
-//
-// Moodle is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
-/**
+/** LICENSE
+ * 
+ * This file is part of Moodle - https://moodle.org/
+ * 
+ * Moodle is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Moodle is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+/** DESCRIPTION
+ * 
  * Library of interface functions and constants.
  *
  * @package     mod_medalhasproitec
@@ -323,9 +328,6 @@ function medalhasproitec_extend_navigation($medalhasproitecnode, $course, $modul
 function medalhasproitec_extend_settings_navigation($settingsnav, $medalhasproitecnode = null) {}
 
 
-
-
-
 function medalhasproitec_cm_info_view(cm_info $cm)
 {
     global $PAGE, $OUTPUT, $COURSE;
@@ -417,135 +419,128 @@ function get_disciplina_from_idnumber($idnumber)
  * Get the status of the courses based on the matrix curricular.
  *
  * Exemplo:
- * [
- *    (object)[
- *      'course_id' => 0,
- *      'course_idnumber' => '...',
- *      'course_fullname' => '...',
- *      'course_shortname' => '...',
- *      'course_alias' => '...',
- *      'course_subtitle' => '...',
- *      'course_image_url' => '...',
- *      'total_modules' => 0,
- *      'completed_modules' => 0,
- *      'completion_percentage' => 0,
- *      'disciplina' => 'FIC.1198',
- *      'iniciada' => 0,
- *      'concluida' => 0,
- *    ],
- *    (object)[
- *      'course_id' => 0,
- *      'course_idnumber' => '...',
- *      'course_fullname' => '...',
- *      'course_shortname' => '...',
- *      'course_alias' => '...',
- *      'course_subtitle' => '...',
- *      'course_image_url' => '...',
- *      'total_modules' => 0,
- *      'completed_modules' => 0,
- *      'completion_percentage' => 0,
- *      'disciplina' => 'FIC.1197',
- *      'iniciada' => 0,
- *      'concluida' => 0,
- *    ],
- *    (object)[
- *      'course_id' => 0,
- *      'course_idnumber' => '...',
- *      'course_fullname' => '...',
- *      'course_shortname' => '...',
- *      'course_alias' => '...',
- *      'course_subtitle' => '...',
- *      'course_image_url' => '...',
- *      'total_modules' => 0,
- *      'completed_modules' => 0,
- *      'completion_percentage' => 0,
- *      'disciplina' => 'FIC.1196',
- *      'iniciada' => 0,
- *      'concluida' => 0,
- *    ],
- *    (object)[
- *      'course_id' => 0,
- *      'course_idnumber' => '...',
- *      'course_fullname' => '...',
- *      'course_shortname' => '...',
- *      'course_alias' => '...',
- *      'course_subtitle' => '...',
- *      'course_image_url' => '...',
- *      'total_modules' => 0,
- *      'completed_modules' => 0,
- *      'completion_percentage' => 0,
- *      'disciplina' => 'FIC.1195',
- *      'iniciada' => 0,
- *      'concluida' => 0,
- *    ],
- * ]
- * 
+ *      {
+ *        "jornada": {
+ *          "course_id": 0,
+ *          "course_idnumber": "20242.1.527.1E.FIC.1197#564322",
+ *          "course_fullname": "Seminário de Integração	",
+ *          "course_shortname": "20242.1.527.1E.FIC.1197#564322"
+ *          "course_alias": "...",
+ *          "course_subtitle": "...",
+ *          "course_image_url": "...",
+ *          "total_modules": 0,
+ *          "completed_modules": 0,
+ *          "completion_percentage": 0,
+ *          "disciplina": "FIC.1198",
+ *          "iniciada": 0,
+ *          "concluida": 0,
+ *        },
+ *        "etica": {
+ *          "course_id": 0,
+ *          "course_idnumber": "20242.1.527.1E.FIC.1197#564322",
+ *          "course_fullname": "Ética e Cidadania",
+ *          "course_shortname": "20242.1.527.1E.FIC.1197#564322"
+ *          "course_alias": "...",
+ *          "course_subtitle": "...",
+ *          "course_image_url": "...",
+ *          "total_modules": 0,
+ *          "completed_modules": 0,
+ *          "completion_percentage": 0,
+ *          "disciplina": "FIC.1197",
+ *          "iniciada": 0,
+ *          "concluida": 0,
+ *        },
+ *        "matematica": {
+ *          "course_id": 0,
+ *          "course_idnumber": "20242.1.527.1E.FIC.1196#564322",
+ *          "course_fullname": "Matemática",
+ *          "course_shortname": "20242.1.527.1E.FIC.1196#564322"
+ *          "course_alias": "...",
+ *          "course_subtitle": "...",
+ *          "course_image_url": "...",
+ *          "total_modules": 0,
+ *          "completed_modules": 0,
+ *          "completion_percentage": 0,
+ *          "disciplina": "FIC.1196",
+ *          "iniciada": 0,
+ *          "concluida": 0,
+ *        },
+ *        "portugues": {
+ *          "course_id": 0,
+ *          "course_idnumber": "20242.1.527.1E.FIC.1195#564322",
+ *          "course_fullname": "Língua Portuguesa",
+ *          "course_shortname": "20242.1.527.1E.FIC.1195#564322"
+ *          "course_alias": "...",
+ *          "course_subtitle": "...",
+ *          "course_image_url": "...",
+ *          "total_modules": 0,
+ *          "completed_modules": 0,
+ *          "completion_percentage": 0,
+ *          "disciplina": "FIC.1195",
+ *          "iniciada": 0,
+ *          "concluida": 0,
+ *        },
+ *     }
+ *  
  * @return array An array containing the status of each course.
  */
 function get_courses_progress_as_list()
 {
     global $DB, $CFG, $COURSE, $USER;
-    // Título do curso
-    // Subtítulo do curso
-    // URL da pedra do curso
-    // Progresso do curso
+
     $courses = $DB->get_records_sql(
         "
-            SELECT c.id                                       AS course_id
-            , c.idnumber                                      AS course_idnumber
-            , c.fullname                                      AS course_fullname
-            , c.shortname                                     AS course_shortname
+            SELECT c.id                                                                                 AS course_id
+            , c.idnumber                                                                                AS course_idnumber
+            , c.fullname                                                                                AS course_fullname
+            , c.shortname                                                                               AS course_shortname
             , (SELECT cd.value
-                FROM mdl_customfield_data                cd
+                FROM mdl_customfield_data cd
                         INNER JOIN mdl_customfield_field cf ON
                             (cd.fieldid = cf.id AND cf.shortname = 'multiprogress_course_alias')
-                WHERE cd.instanceid = c.id)                 AS course_alias
+                WHERE cd.instanceid = c.id)                                                             AS course_alias
             , (SELECT cd.value
-                FROM mdl_customfield_data                cd
+                FROM mdl_customfield_data cd
                         INNER JOIN mdl_customfield_field cf ON
                             (cd.fieldid = cf.id AND cf.shortname = 'multiprogress_course_subtitle')
-                WHERE cd.instanceid = c.id)                 AS course_subtitle
+                WHERE cd.instanceid = c.id)                                                             AS course_subtitle
             , (SELECT cd.value
-                FROM mdl_customfield_data                cd
+                FROM mdl_customfield_data cd
                         INNER JOIN mdl_customfield_field cf ON
                             (cd.fieldid = cf.id AND cf.shortname = 'multiprogress_course_image_url')
-                WHERE cd.instanceid = c.id)                 AS course_image_url
-            , COUNT(cm.id)                                    AS total_modules
-            , COUNT(mc.id)                                    AS completed_modules
-            , TRUNC((COUNT(mc.id) * 100.0 / COUNT(cm.id)), 0) AS completion_percentage
-        FROM mdl_course                                   c
-                INNER JOIN mdl_course_modules cm
-                    ON (c.id = cm.course)
-                    AND cm.completion > 0
-                LEFT JOIN  mdl_course_modules_completion mc 
-                    ON (cm.id = mc.coursemoduleid)
-                    AND mc.userid = $USER->id
+                WHERE cd.instanceid = c.id)                                                             AS course_image_url
+            , COUNT(cm.id)                                                                              AS total_modules
+            , COUNT(mc.id)                                                                              AS completed_modules
+            , 0                                                                                         AS course_grade
+        FROM mdl_course                                         AS c
+                LEFT JOIN mdl_course_modules                    AS cm ON (c.id = cm.course AND cm.completion > 0)
+                    LEFT JOIN  mdl_course_modules_completion    AS mc ON (cm.id = mc.coursemoduleid AND mc.userid = $USER->id)
         WHERE c.category = $COURSE->category
         GROUP BY c.id, c.fullname, c.shortname, c.idnumber
         ORDER BY c.idnumber DESC
         "
     );
     $traducao = [
-        'FIC.1195' => [
-            'course_alias' => 'PEDRA DA LÓGICA',
-            'course_subtitle' => 'Viaje ate o Oeste Potiguar para obtê-la',
-            'stone_color' => '62, 193, 52'
-        ],
-        'FIC.1196' => [
-            'course_alias' => 'PEDRA DA COMUNICAÇÃO',
-            'course_subtitle' => 'Viaje ate a Central Potiguar para obtê-la',
-            'stone_color' => '253, 35, 217'
+        'FIC.1198' => [
+            'course_alias' => 'PEDRA DA UNIDADE',
+            'course_subtitle' => 'Viaje até o Leste Potiguar para obtê-la',
+            'stone_color' => '47, 109, 246'
         ],
         'FIC.1197' => [
             'course_alias' => 'PEDRA DA HARMONIA',
-            'course_subtitle' => 'Viaje ate o Agreste Potiguar para obtê-la',
+            'course_subtitle' => 'Viaje até o Agreste Potiguar para obtê-la',
             'stone_color' => '242, 183, 34'
         ],
-        'FIC.1198' => [
-            'course_alias' => 'PEDRA DA UNIDADE',
-            'course_subtitle' => 'Viaje ate o Leste Potiguar para obtê-la',
-            'stone_color' => '47, 109, 246'
-        ]
+        'FIC.1196' => [
+            'course_alias' => 'PEDRA DA LÓGICA',
+            'course_subtitle' => 'Viaje até o Oeste Potiguar para obtê-la',
+            'stone_color' => '62, 193, 52'
+        ],
+        'FIC.1195' => [
+            'course_alias' => 'PEDRA DA COMUNICAÇÃO',
+            'course_subtitle' => 'Viaje até a Central Potiguar para obtê-la',
+            'stone_color' => '253, 35, 217'
+        ],
     ];
 
     foreach ($courses as $course) {
@@ -564,9 +559,13 @@ function get_courses_progress_as_list()
         if (empty($course->course_image_url)) {
             $course->course_image_url = "$CFG->wwwroot/mod/medalhasproitec/pix/pedra.{$course->disciplina}.png";
         }
-        $course->iniciada = TRUE;
-        $course->concluida = $course->completion_percentage >= 100;
         $course->jornada = $course->disciplina === 'FIC.1198';
+        $course->completion_percentage = 0;
+        if ($course->total_modules > 0 && $course->completed_modules > 0) {
+            $course->completion_percentage = intval(floatval($course->completed_modules) / floatval($course->total_modules) * 100);
+        }
+        $course->iniciada = $course->completion_percentage > 0;
+        $course->concluida = $course->course_grade >= 60 && $course->completion_percentage == 100;
 
         if (array_key_exists($course->disciplina, $traducao)) {
             $course->stone_color =  $traducao[$course->disciplina]['stone_color'];
@@ -577,81 +576,84 @@ function get_courses_progress_as_list()
         }
         $course->isactive = ($course->course_id == $COURSE->id) ? 'd-flex' : 'hidden';
     }
+
     return array_values($courses);
 }
+
 
 /**
  * Get the status of the courses based on the matrix curricular.
  *
  * Exemplo:
  * {
- *    "jornada": {
- *      "course_id": 0,
- *      "course_idnumber": "...",
- *      "course_fullname": "...",
- *      "course_shortname": "...",
- *      "course_alias": "...",
- *      "course_subtitle": "...",
- *      "course_image_url": "...",
- *      "total_modules": 0,
- *      "completed_modules": 0,
- *      "completion_percentage": 0,
- *      "disciplina": "FIC.1198",
- *      "iniciada": 0,
- *      "concluida": 0,
- *    },
- *    "etica": {
- *      "course_id": 0,
- *      "course_idnumber": "...",
- *      "course_fullname": "...",
- *      "course_shortname": "...",
- *      "course_alias": "...",
- *      "course_subtitle": "...",
- *      "course_image_url": "...",
- *      "total_modules": 0,
- *      "completed_modules": 0,
- *      "completion_percentage": 0,
- *      "disciplina": "FIC.1197",
- *      "iniciada": 0,
- *      "concluida": 0,
- *    },
- *    "matematica": {
- *      "course_id": 0,
- *      "course_idnumber": "...",
- *      "course_fullname": "...",
- *      "course_shortname": "...",
- *      "course_alias": "...",
- *      "course_subtitle": "...",
- *      "course_image_url": "...",
- *      "total_modules": 0,
- *      "completed_modules": 0,
- *      "completion_percentage": 0,
- *      "disciplina": "FIC.1196",
- *      "iniciada": 0,
- *      "concluida": 0,
- *    },
- *    "portugues": {
- *      "course_id": 0,
- *      "course_idnumber": "...",
- *      "course_fullname": "...",
- *      "course_shortname": "...",
- *      "course_alias": "...",
- *      "course_subtitle": "...",
- *      "course_image_url": "...",
- *      "total_modules": 0,
- *      "completed_modules": 0,
- *      "completion_percentage": 0,
- *      "disciplina": "FIC.1195",
- *      "iniciada": 0,
- *      "concluida": 0,
- *    },
- * }
+ *        "jornada": {
+ *          "course_id": 0,
+ *          "course_idnumber": "20242.1.527.1E.FIC.1197#564322",
+ *          "course_fullname": "Seminário de Integração	",
+ *          "course_shortname": "20242.1.527.1E.FIC.1197#564322"
+ *          "course_alias": "...",
+ *          "course_subtitle": "...",
+ *          "course_image_url": "...",
+ *          "total_modules": 0,
+ *          "completed_modules": 0,
+ *          "completion_percentage": 0,
+ *          "disciplina": "FIC.1198",
+ *          "iniciada": 0,
+ *          "concluida": 0,
+ *        },
+ *        "etica": {
+ *          "course_id": 0,
+ *          "course_idnumber": "20242.1.527.1E.FIC.1197#564322",
+ *          "course_fullname": "Ética e Cidadania",
+ *          "course_shortname": "20242.1.527.1E.FIC.1197#564322"
+ *          "course_alias": "...",
+ *          "course_subtitle": "...",
+ *          "course_image_url": "...",
+ *          "total_modules": 0,
+ *          "completed_modules": 0,
+ *          "completion_percentage": 0,
+ *          "disciplina": "FIC.1197",
+ *          "iniciada": 0,
+ *          "concluida": 0,
+ *        },
+ *        "matematica": {
+ *          "course_id": 0,
+ *          "course_idnumber": "20242.1.527.1E.FIC.1196#564322",
+ *          "course_fullname": "Matemática",
+ *          "course_shortname": "20242.1.527.1E.FIC.1196#564322"
+ *          "course_alias": "...",
+ *          "course_subtitle": "...",
+ *          "course_image_url": "...",
+ *          "total_modules": 0,
+ *          "completed_modules": 0,
+ *          "completion_percentage": 0,
+ *          "disciplina": "FIC.1196",
+ *          "iniciada": 0,
+ *          "concluida": 0,
+ *        },
+ *        "portugues": {
+ *          "course_id": 0,
+ *          "course_idnumber": "20242.1.527.1E.FIC.1195#564322",
+ *          "course_fullname": "Língua Portuguesa",
+ *          "course_shortname": "20242.1.527.1E.FIC.1195#564322"
+ *          "course_alias": "...",
+ *          "course_subtitle": "...",
+ *          "course_image_url": "...",
+ *          "total_modules": 0,
+ *          "completed_modules": 0,
+ *          "completion_percentage": 0,
+ *          "disciplina": "FIC.1195",
+ *          "iniciada": 0,
+ *          "concluida": 0,
+ *        },
+ *     }
  * 
  * @return array An array containing the status of each course.
  */
 function get_courses_progress_as_dict()
 {
-    global $DB, $CFG, $COURSE, $USER;
+    global $CFG, $COURSE;
+
     $matrix_curricular = [
         "FIC.1198" => ["curso" => "Seminário de Integração", "key" => "jornada"],
         "FIC.1197" => ["curso" => "Ética e Cidadania", "key" => "etica"],
@@ -661,20 +663,36 @@ function get_courses_progress_as_dict()
 
     $courses = get_courses_progress_as_list();
 
-    $courses_statuses = [
-        'jornada' => null,
-        'etica' => null,
-        'matematica' => null,
-        'portugues' => null,
+    $CURSO_NULO = (object)[
+        "course_id" => 0,
+        "course_idnumber" => "Curso não encontrado",
+        "course_fullname" => "Curso não encontrado",
+        "course_shortname" => "Curso não encontrado",
+        "course_alias" => "Curso não encontrado",
+        "course_subtitle" => "Curso não encontrado",
+        "course_image_url" => "{$CFG->wwwroot}/mod/medalhasproitec/pix/curso_nao_encontrado.png",
+        "total_modules" => 0,
+        "completed_modules" => 0,
+        "completion_percentage" => 0,
+        "nota_curso" => 0,
+        "concluida" => false,
+        "jornada" => false,
     ];
+
+    $courses_statuses = ['jornada' => $CURSO_NULO, 'etica' => $CURSO_NULO, 'matematica' => $CURSO_NULO, 'portugues' => $CURSO_NULO];
 
     foreach ($courses as $course) {
         if (isset($matrix_curricular[$course->disciplina])) {
             $courses_statuses[$matrix_curricular[$course->disciplina]['key']] = $course;
         }
     }
+
+    $courses_statuses["courses"] = $courses;
+    $courses_statuses["isjourney"] = get_disciplina_from_idnumber($COURSE->idnumber) == CODIGO_DISCIPLINA_JORNADA;
+
     return $courses_statuses;
 }
+
 
 /**
  * Obtém o total de atividades de um tipo específico em um curso e quantas delas foram concluídas por um usuário.
@@ -834,11 +852,10 @@ function at_least_read_one_book(): bool
 
 function redirect_to_jornada_if_not_started()
 {
-    global $COURSE, $USER, $PAGE;
+    global $COURSE, $PAGE;
 
     $courses = get_courses_progress_as_dict();
-
-    $jornadaid = $courses['jornada']->course_id ?? 0;
+    $jornadaid = $courses['jornada']->course_id;
 
     // Só prepara o redirecionamento se realmente precisar
     $shouldredirect = (
@@ -855,8 +872,8 @@ function redirect_to_jornada_if_not_started()
             'mod_medalhasproitec/modal',
             'show',
             [
-                'Entrada Restrita',
-                'Você deverá começar sua jornada pelo Leste Potiguar (Seminário de Integração).',
+                'Perdido aventureiro?',
+                'Você deverá começar sua jornada pelo Leste Potiguar.',
                 $redirurl,
                 false,
                 null,
