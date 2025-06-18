@@ -42,12 +42,20 @@ class backup_medalhasproitec_activity_structure_step extends backup_activity_str
         // Replace with the attributes and final elements that the element will handle.
         $attributes = null;
         $finalelements = null;
-        $root = new backup_nested_element('mod_medalhasproitec', $attributes, $finalelements);
+        // $root = new backup_nested_element('mod_medalhasproitec', $attributes, $finalelements);
+
+        $root = new backup_nested_element('medalhasproitec', ['id'], [
+            'course', 'name', 'intro', 'introformat', 'timecreated', 'timemodified'
+        ]);
+
+        $root->set_source_table('medalhasproitec', ['id' => backup::VAR_ACTIVITYID]);
+
+        $root->annotate_files('mod_medalhasproitec', 'intro', null);
 
         // Replace with the attributes and final elements that the element will handle.
         $attributes = null;
         $finalelements = null;
-        $elt = new backup_nested_element('elt', $attributes, $finalelements);
+        // $elt = new backup_nested_element('elt', $attributes, $finalelements);
 
         // Build the tree with these elements with $root as the root of the backup tree.
 
