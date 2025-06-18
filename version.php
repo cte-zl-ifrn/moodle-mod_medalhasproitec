@@ -25,8 +25,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_medalhasproitec';
-$plugin->release = '0.1.8';
-$plugin->version = 2025_06_18_08;
+$plugin->release = '0.1.9';
+$plugin->version = 2025_06_18_09;
 $plugin->requires = 2022_11_28_00;
 $plugin->maturity = MATURITY_RC;
 $plugin->dependencies = [
