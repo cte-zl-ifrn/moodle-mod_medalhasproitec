@@ -29,32 +29,37 @@
 /**
  * Define the complete structure for backup, with file and id annotations.
  */
-class backup_medalhasproitec_activity_structure_step extends backup_activity_structure_step {
+
+class backup_medalhasproitec_activity_structure_step extends backup_activity_structure_step
+{
 
     /**
      * Defines the structure of the resulting xml file.
      *
      * @return backup_nested_element The structure wrapped by the common 'activity' element.
      */
-    protected function define_structure() {
-        $userinfo = $this->get_setting_value('userinfo');
+    protected function define_structure()
+    {
+        // Replace with the attributes and final elements that the element will handle.
+        $medalhasproitec = new backup_nested_element(
+            'medalhasproitec',
+            ['id'],
+            [
+                'course',
+                'name',
+                'intro',
+                'introformat',
+                'timecreated',
+                'timemodified'
+            ]
+        );
+
+        $medalhasproitec->set_source_table('medalhasproitec', ['id' => backup::VAR_ACTIVITYID]);
+
+        $medalhasproitec->annotate_files('mod_medalhasproitec', 'intro', null);
 
         // Replace with the attributes and final elements that the element will handle.
-        $attributes = null;
-        $finalelements = null;
-        // $root = new backup_nested_element('mod_medalhasproitec', $attributes, $finalelements);
 
-        $root = new backup_nested_element('medalhasproitec', ['id'], [
-            'course', 'name', 'intro', 'introformat', 'timecreated', 'timemodified'
-        ]);
-
-        $root->set_source_table('medalhasproitec', ['id' => backup::VAR_ACTIVITYID]);
-
-        $root->annotate_files('mod_medalhasproitec', 'intro', null);
-
-        // Replace with the attributes and final elements that the element will handle.
-        $attributes = null;
-        $finalelements = null;
         // $elt = new backup_nested_element('elt', $attributes, $finalelements);
 
         // Build the tree with these elements with $root as the root of the backup tree.
@@ -65,6 +70,6 @@ class backup_medalhasproitec_activity_structure_step extends backup_activity_str
 
         // Define file annotations.
 
-        return $this->prepare_activity_structure($root);
+        return $this->prepare_activity_structure($medalhasproitec);
     }
 }
