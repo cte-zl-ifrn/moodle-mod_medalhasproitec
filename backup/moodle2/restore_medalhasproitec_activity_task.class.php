@@ -28,18 +28,20 @@ defined('MOODLE_INTERNAL') || die();
 // More information about the backup process: {@link https://docs.moodle.org/dev/Backup_API}.
 // More information about the restore process: {@link https://docs.moodle.org/dev/Restore_API}.
 
-require_once($CFG->dirroot.'//mod/medalhasproitec/backup/moodle2/restore_medalhasproitec_stepslib.php');
+require_once($CFG->dirroot . '/mod/medalhasproitec/backup/moodle2/restore_medalhasproitec_stepslib.php');
 
 /**
  * Restore task for mod_medalhasproitec.
  */
-class restore_medalhasproitec_activity_task extends restore_activity_task {
+class restore_medalhasproitec_activity_task extends restore_activity_task
+{
 
     /**
      * Defines particular settings that this activity can have.
      */
-    protected function define_my_settings() {
-        return;
+    protected function define_my_settings()
+    {
+        // No particular settings for this activity.
     }
 
     /**
@@ -47,7 +49,8 @@ class restore_medalhasproitec_activity_task extends restore_activity_task {
      *
      * @return base_step.
      */
-    protected function define_my_steps() {
+    protected function define_my_steps()
+    {
         $this->add_step(new restore_medalhasproitec_activity_structure_step('medalhasproitec_structure', 'medalhasproitec.xml'));
     }
 
@@ -56,16 +59,11 @@ class restore_medalhasproitec_activity_task extends restore_activity_task {
      *
      * @return array.
      */
-    public static function define_decode_contents() {
-        $contents = [];
-
-        $contents[] = new restore_decode_content(
-            'medalhasproitec',              // Nome da tabela.
-            ['intro'],                      // Campos com conteúdo a ser decodificado.
-            'medalhasproitec'               // Tipo da atividade.
-        );
-
-        return $contents;
+    public static function define_decode_contents()
+    {
+        return [
+            new restore_decode_content('medalhasproitec', ['intro'], 'medalhasproitec')
+        ];
     }
 
     /**
@@ -73,22 +71,9 @@ class restore_medalhasproitec_activity_task extends restore_activity_task {
      *
      * @return array.
      */
-    public static function define_decode_rules() {
-        $rules = [];
-
-        $rules[] = new restore_decode_rule(
-            'MEDALHASPROITECVIEWBYID',
-            '/mod/medalhasproitec/view.php?id=$1',
-            'course_module'
-        );
-
-        $rules[] = new restore_decode_rule(
-            'MEDALHASPROITECINDEX',
-            '/mod/medalhasproitec/index.php?id=$1',
-            'course'
-        );
-
-        return $rules;
+    public static function define_decode_rules()
+    {
+        return [];
     }
 
     /**
@@ -98,11 +83,29 @@ class restore_medalhasproitec_activity_task extends restore_activity_task {
      *
      * @return array.
      */
-    public static function define_restore_log_rules() {
-        $rules = [];
+    public static function define_restore_log_rules()
+    {
+        return [
+            new restore_log_rule('medalhasproitec', 'add', 'view.php?id={course_module}', '{medalhasproitec}'),
+            new restore_log_rule('medalhasproitec', 'update', 'view.php?id={course_module}', '{medalhasproitec}'),
+            new restore_log_rule('medalhasproitec', 'view', 'view.php?id={course_module}', '{medalhasproitec}'),
+        ];
+    }
 
-        // Define the rules.
-
-        return $rules;
+    /**
+     * Define the restore log rules that will be applied
+     * by the {@link restore_logs_processor} when restoring
+     * course logs. It must return one array
+     * of {@link restore_log_rule} objects
+     *
+     * Note this rules are applied when restoring course logs
+     * by the restore final task, but are defined here at
+     * activity level. All them are rules not linked to any module instance (cmid = 0)
+     */
+    public static function define_restore_log_rules_for_course()
+    {
+        return [
+            new restore_log_rule('medalhasproitec', 'view all', 'index.php?id={course}', null)
+        ];
     }
 }
