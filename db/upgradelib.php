@@ -38,6 +38,32 @@ function mod_medalhasproitec_install_and_upgrade_tables($oldversion)
     // Documentation for the XMLDB Editor can be found at {@link https://docs.moodle.org/dev/XMLDB_editor}.
 
     $dbman = $DB->get_manager();
+    if (!$dbman->table_exists('medalhasproitec')) {
+
+        // Define a nova tabela medalhasproitec.
+        $table = new xmldb_table('medalhasproitec');
+
+        // Adiciona os campos.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('course', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('name', XMLDB_TYPE_CHAR, '100', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('intro', XMLDB_TYPE_TEXT, 'medium', null, XMLDB_NULL, null, null);
+        $table->add_field('introformat', XMLDB_TYPE_INTEGER, '100', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+
+        // Define a chave primária.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Cria a tabela se ainda não existir.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Marca o upgrade como completo.
+        upgrade_mod_savepoint(true, 2025_06_21_12, 'medalhasproitec');
+    }
+
     if (!$dbman->table_exists('medalhasproitec_shown_modal')) {
 
         // Define a nova tabela medalhasproitec_shown_modal.
@@ -61,7 +87,7 @@ function mod_medalhasproitec_install_and_upgrade_tables($oldversion)
         }
 
         // Marca o upgrade como completo.
-        upgrade_mod_savepoint(true, 2025061601, 'medalhasproitec');
+        upgrade_mod_savepoint(true, 2025_06_21_12, 'medalhasproitec');
     }
 
     return true;
