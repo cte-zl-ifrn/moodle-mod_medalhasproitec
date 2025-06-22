@@ -26,18 +26,17 @@
 defined('MOODLE_INTERNAL') || die();
 
 $observers = [
+    // [
+    //     'eventname' => '\core\event\course_module_completion_updated',
+    //     'callback' => '\mod_medalhasproitec\observers\observers::course_module_completion_updated',
+    //     'includefile' => '/mod/medalhasproitec/observers/',
+    //     'priority' => 200,
+    //     'internal' => true,
+    // ],
 
-    [
-        'eventname' => '\core\event\course_module_completion_updated',
-        'callback' => '\mod_medalhasproitec\observers\observers::course_module_completion_updated',
-        'includefile' => '/mod/medalhasproitec/observers/',
-        'priority' => 200,
-        'internal' => true,
-    ],
-
-    [
-        'eventname' => '\core\event\content_viewed',
-        'callback' => 'mod_medalhasproitec_observer_content_viewed',
-        'internal' => false,
-    ],
+    // [
+    //     'eventname' => '\core\event\content_viewed',
+    //     'callback' => 'mod_medalhasproitec_observer_content_viewed',
+    //     'internal' => false,
+    // ],
 ];
