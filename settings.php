@@ -26,10 +26,9 @@
 defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig) {
-    $settings = new admin_settingpage('mod_medalhasproitec_settings', new lang_string('pluginname', 'mod_medalhasproitec'));
-
     // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
     if ($ADMIN->fulltree) {
         // TO-DO: Define actual plugin settings page and add it to the tree - {@link https://docs.moodle.org/dev/Admin_settings}.
+        // $settings = new admin_settingpage('medalhasproitec_settings', new lang_string('pluginname', 'medalhasproitec'));
     }
 }
