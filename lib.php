@@ -850,40 +850,6 @@ function at_least_read_one_book(): bool
     return false;
 }
 
-
-function redirect_to_jornada_if_not_started()
-{
-    global $COURSE, $PAGE;
-
-    $courses = get_courses_progress_as_dict();
-    $jornadaid = $courses['jornada']->course_id;
-
-    // Só prepara o redirecionamento se realmente precisar
-    $shouldredirect = (
-        isset($courses['jornada']) &&
-        $courses['jornada']->completion_percentage <= 0 &&
-        $COURSE->id != $jornadaid
-    );
-
-    if ($shouldredirect) {
-        // URL de destino
-        $redirurl = (new moodle_url('/course/view.php', ['id' => $jornadaid]))->out(false);
-
-        $PAGE->requires->js_call_amd(
-            'mod_medalhasproitec/modal',
-            'show',
-            [
-                'Perdido aventureiro?',
-                'Você deverá começar sua jornada pelo Leste Potiguar.',
-                $redirurl,
-                false,
-                null,
-            ]
-        );
-    }
-}
-
-
 /**
  * Get the status of the courses based on the matrix curricular.
  *
@@ -946,19 +912,12 @@ function get_insignias()
     global $DB, $CFG, $COURSE, $USER;
     $courses = get_courses_progress_as_dict();
 
-    redirect_to_jornada_if_not_started();
-
     // Pega todos os slugs de medalha já mostrados para o usuário
-    $shownrecords = $DB->get_records_menu(
-        'medalhasproitec_shown_modal',
-        ['userid' => $USER->id],
-        '',
-        'medalhaid, medalhaid'
-    );
+    $shownrecords = $DB->get_records_menu('medalhasproitec_shown_modal', ['userid' => $USER->id], '', 'medalhaid, medalhaid');
 
     $insignias = [
         'sentinela_do_codex' => (object)[
-            'tem' => isset($courses['jornada']) && $courses['jornada']->completion_percentage > 0,
+            'tem' => $courses['jornada']->completion_percentage > 0,
             'ja_mostrou_popup' => array_key_exists('sentinela_do_codex', $shownrecords),
             'title' => 'Sentinela do Codex',
             'description' => '...',
@@ -986,33 +945,35 @@ function get_insignias()
             'popup' => 'Missão cumprida. Chegou a hora de abrir o portal!',
         ],
         'amante_dos_numeros' => (object)[
-            'tem' => isset($courses['matematica']) && $courses['matematica']->concluida,
+            'tem' => $courses['matematica']->concluida,
             'ja_mostrou_popup' => array_key_exists('amante_dos_numeros', $shownrecords),
             'title' => 'Amante dos Números',
             'description' => '...',
             'popup' => 'Você concluiu o módulo de matemática. Pitágoras estaria orgulhoso.',
         ],
         'amante_das_palavras' => (object)[
-            'tem' => isset($courses['portugues']) && $courses['portugues']->concluida,
+            'tem' => $courses['portugues']->concluida,
             'ja_mostrou_popup' => array_key_exists('amante_das_palavras', $shownrecords),
             'title' => 'Amante das Palavras',
             'description' => '...',
             'popup' => 'Seu português afiado vai te levar longe.',
         ],
         'orgulho_da_comunidade' => (object)[
-            'tem' => isset($courses['etica']) && $courses['etica']->concluida,
+            'tem' => $courses['etica']->concluida,
             'ja_mostrou_popup' => array_key_exists('orgulho_da_comunidade', $shownrecords),
             'title' => 'Orgulho da Comunidade',
             'description' => '...',
             'popup' => 'Você é uma pessoa exemplar. Continue assim.',
         ],
         'entusiasta_do_ifrn' => (object)[
-            'tem' => isset($courses['jornada']) && $courses['jornada']->concluida,
+            'tem' => $courses['jornada']->concluida,
             'ja_mostrou_popup' => array_key_exists('entusiasta_do_ifrn', $shownrecords),
             'title' => 'Entusiasta do IFRN',
             'description' => '...',
             'popup' => 'Você já está com um pé dentro do IFRN.',
         ],
+        'isstudent' => user_has_role_assignment($USER->id, 5, context_course::instance($COURSE->id)->id),
     ];
-    return $insignias;
+
+    return array_merge($insignias, $courses);
 }

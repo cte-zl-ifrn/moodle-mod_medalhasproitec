@@ -196,3 +196,20 @@ body.editing .activity.modtype_medalhasproitec .activity-name-area {
     </div>
 </div>
 {{/sentinela_do_codex.tem}}
+
+{{^jornada.iniciada}}
+{{#isstudent}}
+{{^isjourney}}
+<div id="custom-modal-backdrop" class="custom-modal-backdrop">
+    <div id="custom-modal" class="custom-modal">
+        <img id="custom-modal-image" class="custom-modal-image" src="" alt="" style="display: none;" />
+        <h3 id="custom-modal-title">Perdido aventureiro?</h3>
+        <p id="custom-modal-message">Você deverá começar sua jornada pelo Leste Potiguar.</p>
+        <div class="custom-modal-actions">
+            <a href="{{wwwroot}}/course/view.php?id={{jornada.course_id}}" class="btn btn-primary">Vamos lá</a>
+        </div>
+    </div>
+</div>
+{{/isjourney}}
+{{/isstudent}}
+{{/jornada.iniciada}}
