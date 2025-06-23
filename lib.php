@@ -565,7 +565,8 @@ function get_courses_progress_as_list()
             $course->completion_percentage = intval(floatval($course->completed_modules) / floatval($course->total_modules) * 100);
         }
         $course->iniciada = $course->completion_percentage > 0;
-        $course->concluida = $course->course_grade >= 60 && $course->completion_percentage == 100;
+        // $course->concluida = $course->course_grade >= 60 && $course->completion_percentage == 100;
+        $course->concluida = $course->completion_percentage == 100;
 
         if (array_key_exists($course->disciplina, $traducao)) {
             $course->stone_color =  $traducao[$course->disciplina]['stone_color'];
