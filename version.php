@@ -25,10 +25,10 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_medalhasproitec';
-$plugin->release = '0.1.15';
-$plugin->version = 2025062315;
+$plugin->release = '0.1.16';
+$plugin->version = 2025070316;
 $plugin->requires = 2022112800;
-$plugin->maturity = MATURITY_RC;
+$plugin->maturity = MATURITY_STABLE;
 $plugin->dependencies = [
     'local_suap' => 20250605066,
 ];

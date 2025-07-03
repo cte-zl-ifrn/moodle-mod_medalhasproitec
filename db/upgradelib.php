@@ -61,7 +61,7 @@ function mod_medalhasproitec_install_and_upgrade_tables($oldversion)
         }
 
         // Marca o upgrade como completo.
-        upgrade_mod_savepoint(true, 2025_06_21_12, 'medalhasproitec');
+        upgrade_mod_savepoint(true, 2025062112, 'medalhasproitec');
     }
 
     if (!$dbman->table_exists('medalhasproitec_shown_modal')) {
@@ -87,7 +87,7 @@ function mod_medalhasproitec_install_and_upgrade_tables($oldversion)
         }
 
         // Marca o upgrade como completo.
-        upgrade_mod_savepoint(true, 2025_06_21_12, 'medalhasproitec');
+        upgrade_mod_savepoint(true, 2025062112, 'medalhasproitec');
     }
 
     return true;
